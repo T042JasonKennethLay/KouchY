@@ -1,6 +1,6 @@
 # KouchY
 
-A tiny Japanese house that lives on your Android home screen. The little resident inside reacts to how you use your phone today.
+A tiny late-night Tokyo ramen shop that lives on your Android home screen. The shop owner reacts to how you use your phone today.
 
 ## Moods
 
@@ -12,7 +12,7 @@ A tiny Japanese house that lives on your Android home screen. The little residen
 | Ngantuk | Still on the phone after 11 PM |
 | Tidur | Phone untouched at night |
 
-The scene also follows the time of day (morning, day, evening, night) and animates with sakura petals, rain, a sleepy cat and a swaying lantern.
+It is always raining on this little street: neon ラーメン sign, swaying noren and lanterns, steaming bowls, a glowing vending machine, wet asphalt reflections and puddle ripples. The sky follows the time of day, the rain gets heavier when the owner is lonely, and the shop closes while they sleep.
 
 ## Tech
 
