@@ -56,18 +56,12 @@ object WidgetUpdater {
         val uris = FrameStore.save(ctx, frames)
         frames.forEach { it.recycle() }
 
-        manager.updateAppWidget(ids, buildViews(ctx, uris, mood.bubble(phase, weather), stats))
+        manager.updateAppWidget(ids, buildViews(ctx, uris, stats))
     }
 
-    private fun buildViews(
-        ctx: Context,
-        frames: List<Uri>,
-        bubble: String,
-        stats: PhoneStats,
-    ): RemoteViews {
+    private fun buildViews(ctx: Context, frames: List<Uri>, stats: PhoneStats): RemoteViews {
         val views = RemoteViews(ctx.packageName, R.layout.widget_rumah)
         frames.forEachIndexed { i, uri -> views.setImageViewUri(FRAME_IDS[i], uri) }
-        views.setTextViewText(R.id.bubble, bubble)
 
         val click = if (stats.hasPermission) {
             PendingIntent.getBroadcast(

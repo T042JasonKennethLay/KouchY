@@ -9,8 +9,8 @@ enum class HairStyle(val label: String) {
     SHORT("Pendek"), LONG("Panjang"), BUN("Cepol"), CAP("Topi"),
 }
 
-enum class GuestActivity(val label: String, val emoji: String) {
-    RAMEN("Makan ramen", "🍜"), TEA("Minum teh", "🍵"), PHONE("Main HP", "📱"),
+enum class GuestActivity(val label: String) {
+    RAMEN("Makan ramen"), TEA("Minum teh"), PHONE("Main HP"),
 }
 
 data class Guest(

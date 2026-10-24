@@ -72,7 +72,26 @@ object SceneRenderer {
         drawPrecipitation(c, precip, frame)
         if (ground == Ground.WET) drawDrips(c, frame)
         drawEffects(c, mood, frame)
+        drawBubble(c, mood.bubble(state.phase, weather), frame)
         return bmp
+    }
+
+    private fun drawBubble(c: PixelCanvas, text: String, frame: Int) {
+        val ink = 0x2A1E36
+        val fill = 0xFFFDF7
+        val w = PixelFont.width(text) + 7
+        val h = PixelFont.HEIGHT + 6
+        val x = 9
+        val y = 3 + if (wave(frame) > 0.6) -1 else 0
+        c.rect(x + 1, y, w - 2, h, ink)
+        c.rect(x, y + 1, w, h - 2, ink)
+        c.rect(x + 1, y + 1, w - 2, h - 2, fill)
+        val tx = x + w - 9
+        c.rect(tx + 1, y + h - 1, 3, 1, fill)
+        c.px(tx + 1, y + h, ink); c.rect(tx + 2, y + h, 2, 1, fill); c.px(tx + 4, y + h, ink)
+        c.px(tx + 2, y + h + 1, ink); c.px(tx + 3, y + h + 1, fill); c.px(tx + 4, y + h + 1, ink)
+        c.px(tx + 3, y + h + 2, ink)
+        PixelFont.forEachPixel(text) { px, py -> c.px(x + 4 + px, y + 3 + py, 0x3B2A3A) }
     }
 
     private fun precipOf(weather: Weather, lonely: Boolean) = when (weather) {

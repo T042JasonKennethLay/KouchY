@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="PixelTextView">
+        <attr name="pixelText" format="string" />
+        <attr name="pixelColor" format="color" />
+        <attr name="pixelSize" format="float" />
+        <attr name="pixelCentered" format="boolean" />
+        <attr name="pixelShadow" format="boolean" />
+    </declare-styleable>
+</resources>

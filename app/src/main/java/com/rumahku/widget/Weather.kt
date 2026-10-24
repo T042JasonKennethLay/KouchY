@@ -4,8 +4,8 @@ import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 import kotlin.random.Random
 
-enum class Weather(val label: String, val emoji: String) {
-    RAIN("Hujan", "🌧️"), SNOW("Salju", "❄️"), AUTUMN("Gugur", "🍁"), SUMMER("Musim panas", "🎆"), CLEAR("Cerah", "🌃");
+enum class Weather(val label: String) {
+    RAIN("Hujan"), SNOW("Salju"), AUTUMN("Gugur"), SUMMER("Musim panas"), CLEAR("Cerah");
 
     companion object {
         private const val HOURS_PER_WEATHER = 3

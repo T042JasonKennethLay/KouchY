@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -56,52 +57,62 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/label_name"
+                <com.rumahku.widget.PixelTextView
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    app:pixelColor="#6AE0FF"
+                    app:pixelSize="2.5"
+                    app:pixelText="Nama" />
 
-                <EditText
-                    android:id="@+id/name_input"
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/pixel_input"
-                    android:fontFamily="monospace"
-                    android:hint="Nama temanmu"
-                    android:importantForAutofill="no"
-                    android:inputType="textPersonName|textCapWords"
-                    android:maxLength="12"
-                    android:paddingStart="14dp"
-                    android:paddingTop="12dp"
-                    android:paddingEnd="14dp"
-                    android:paddingBottom="12dp"
-                    android:textColor="#FFF3E0"
-                    android:textColorHint="#5A4A84"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/pixel_input">
 
-                <TextView
+                    <EditText
+                        android:id="@+id/name_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="52dp"
+                        android:background="@null"
+                        android:cursorVisible="false"
+                        android:importantForAutofill="no"
+                        android:inputType="textPersonName|textCapCharacters"
+                        android:maxLength="12"
+                        android:textColor="#00000000"
+                        android:textIsSelectable="false" />
+
+                    <com.rumahku.widget.PixelTextView
+                        android:id="@+id/name_display"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="14dp"
+                        app:pixelSize="3" />
+                </FrameLayout>
+
+                <com.rumahku.widget.PixelTextView
                     android:id="@+id/tag_hint"
-                    style="@style/PixelBody"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp"
-                    android:textColor="#A898C8"
-                    android:textSize="11sp" />
+                    android:layout_marginTop="10dp"
+                    app:pixelColor="#A898C8"
+                    app:pixelSize="2" />
             </LinearLayout>
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/label_hair"
-            android:layout_width="wrap_content"
+        <com.rumahku.widget.PixelTextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginTop="24dp" />
+            android:layout_marginTop="24dp"
+            app:pixelColor="#FFE27A"
+            app:pixelSize="3"
+            app:pixelText="Gaya rambut" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:scrollbars="none">
 
             <LinearLayout
@@ -111,16 +122,18 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
-        <ImageView
-            android:id="@+id/label_hair_color"
-            android:layout_width="wrap_content"
+        <com.rumahku.widget.PixelTextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginTop="22dp" />
+            android:layout_marginTop="22dp"
+            app:pixelColor="#FFE27A"
+            app:pixelSize="3"
+            app:pixelText="Warna rambut" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:scrollbars="none">
 
             <LinearLayout
@@ -130,16 +143,18 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
-        <ImageView
-            android:id="@+id/label_outfit"
-            android:layout_width="wrap_content"
+        <com.rumahku.widget.PixelTextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginTop="22dp" />
+            android:layout_marginTop="22dp"
+            app:pixelColor="#FFE27A"
+            app:pixelSize="3"
+            app:pixelText="Warna baju" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:scrollbars="none">
 
             <LinearLayout
@@ -149,16 +164,18 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
-        <ImageView
-            android:id="@+id/label_activity"
-            android:layout_width="wrap_content"
+        <com.rumahku.widget.PixelTextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginTop="22dp" />
+            android:layout_marginTop="22dp"
+            app:pixelColor="#FFE27A"
+            app:pixelSize="3"
+            app:pixelText="Lagi ngapain?" />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:scrollbars="none">
 
             <LinearLayout
@@ -168,17 +185,29 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
-        <Button
+        <com.rumahku.widget.PixelTextView
+            android:id="@+id/error"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:visibility="gone"
+            app:pixelColor="#FF5A5A"
+            app:pixelSize="2.5"
+            app:pixelText="Kasih nama dulu ya" />
+
+        <com.rumahku.widget.PixelButton
             android:id="@+id/btn_save"
-            style="@style/PixelButton"
-            android:layout_marginTop="28dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
             android:background="@drawable/btn_pink" />
 
-        <Button
+        <com.rumahku.widget.PixelButton
             android:id="@+id/btn_delete"
-            style="@style/PixelButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/btn_cyan"
-            android:text="Pulangkan tamu ini" />
+            app:pixelText="Pulangkan tamu ini" />
     </LinearLayout>
 </ScrollView>

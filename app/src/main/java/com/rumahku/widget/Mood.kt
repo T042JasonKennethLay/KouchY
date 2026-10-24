@@ -6,29 +6,28 @@ enum class Mood(
     val line: String,
     val lampOn: Boolean,
 ) {
-    HAPPY("Senang", "Senang! 🍜", "Kedai rame, makasih udah mampir", true),
-    LONELY("Kesepian", "Kesepian…", "Kedainya sepi, kamu ke mana aja?", false),
-    TIRED("Capek", "Pusing… 😵", "Kebanyakan main HP nih, istirahat yuk", true),
-    SLEEPY("Ngantuk", "Ngantuk… 🥱", "Udah larut, tidur yuk", true),
-    SLEEPING("Tidur", "Zzz… 😴", "Kedai tutup dulu, lagi tidur", false),
-    NO_PERMISSION("Belum diizinkan", "Halo! 👋", "Ketuk aku buat kasih izin ya", true);
+    HAPPY("Senang", "Senang", "Kedai rame, makasih udah mampir", true),
+    LONELY("Kesepian", "Kesepian", "Kedainya sepi, kamu ke mana aja?", false),
+    TIRED("Capek", "Pusing", "Kebanyakan main HP, istirahat yuk", true),
+    SLEEPY("Ngantuk", "Ngantuk", "Udah larut, tidur yuk", true),
+    SLEEPING("Tidur", "Tidur", "Kedai tutup dulu, lagi tidur", false),
+    NO_PERMISSION("Belum diizinkan", "Halo", "Kasih izin dulu biar aku bisa baca mood kamu", true);
 
     fun bubble(phase: DayPhase, weather: Weather): String = when (this) {
         HAPPY -> when {
-            weather == Weather.SNOW -> "yuki da~! ❄️"
-            weather == Weather.AUTUMN -> "momiji~ 🍁"
-            weather == Weather.SUMMER && (phase == DayPhase.NIGHT || phase == DayPhase.EVENING) -> "hanabi~! 🎆"
-            weather == Weather.SUMMER -> "atsui~ 🍧"
-            weather == Weather.CLEAR && phase == DayPhase.NIGHT -> "irasshai~! 🌃"
-            phase == DayPhase.MORNING -> "ohayō~ ☀️"
-            phase == DayPhase.DAY -> "itadakimasu~ 🍜"
-            else -> "irasshai~! 🏮"
+            weather == Weather.SNOW -> "YUKI DA!"
+            weather == Weather.AUTUMN -> "MOMIJI~"
+            weather == Weather.SUMMER && (phase == DayPhase.NIGHT || phase == DayPhase.EVENING) -> "HANABI!"
+            weather == Weather.SUMMER -> "ATSUI~"
+            phase == DayPhase.MORNING -> "OHAYO~"
+            phase == DayPhase.DAY -> "ITADAKIMASU!"
+            else -> "IRASSHAI!"
         }
-        LONELY -> if (weather == Weather.SNOW) "dingin… sepi… ❄️" else "sepi ya… 🌧️"
-        TIRED -> "pusiiing… 😵"
-        SLEEPY -> "hoaam… 🥱"
-        SLEEPING -> "tutup dulu… 💤"
-        NO_PERMISSION -> "tap aku dong! 👋"
+        LONELY -> if (weather == Weather.SNOW) "DINGIN... SEPI" else "SEPI YA..."
+        TIRED -> "PUSIIING..."
+        SLEEPY -> "HOAAM..."
+        SLEEPING -> "TUTUP DULU..."
+        NO_PERMISSION -> "TAP AKU DONG!"
     }
 }
 

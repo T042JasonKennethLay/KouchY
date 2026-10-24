@@ -3,16 +3,13 @@ package com.rumahku.widget
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Shader
-import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.GradientDrawable
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import kotlin.math.roundToInt
 
 object PixelUi {
@@ -92,20 +89,13 @@ object PixelUi {
         container.addView(titleView)
     }
 
-    fun chip(ctx: Context, text: String, onClick: () -> Unit) = Button(ctx).apply {
+    fun chip(ctx: Context, text: String, onClick: () -> Unit) = PixelButton(ctx).apply {
         this.text = text
-        isAllCaps = false
-        textSize = 12f
-        typeface = Typeface.create(Typeface.MONOSPACE, Typeface.BOLD)
-        setTextColor(ctx.getColorStateList(R.color.chip_text))
+        normalColor = CREAM
+        selectedColor = PixelButton.DARK
         background = ctx.getDrawable(R.drawable.btn_chip)
-        stateListAnimator = null
-        minHeight = dp(ctx, 44f).roundToInt()
-        minimumHeight = minHeight
-        minWidth = 0
-        minimumWidth = 0
-        val h = dp(ctx, 16f).roundToInt()
-        setPadding(h, 0, h, dp(ctx, 4f).roundToInt())
+        minimumHeight = dp(ctx, 46f).roundToInt()
+        setPixelSize(2.5f)
         setOnClickListener { onClick() }
         layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -125,10 +115,9 @@ object PixelUi {
         }
     }
 
-    fun label(ctx: Context, text: String, color: Int = MUTED, sizeSp: Float = 12f) = TextView(ctx).apply {
+    fun label(ctx: Context, text: String, color: Int = MUTED, pixelDp: Float = 2.5f) = PixelTextView(ctx).apply {
         this.text = text
-        setTextColor(color)
-        textSize = sizeSp
-        typeface = Typeface.MONOSPACE
+        this.color = color
+        this.pixelDp = pixelDp
     }
 }
