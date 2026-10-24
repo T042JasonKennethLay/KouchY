@@ -53,7 +53,7 @@ class MainActivity : Activity() {
         val anim = AnimationDrawable().apply {
             isOneShot = false
             SceneRenderer.renderFrames(SceneState(mood, phase)).forEach { frame ->
-                addFrame(BitmapDrawable(resources, frame).apply { isFilterBitmap = false }, 700)
+                addFrame(BitmapDrawable(resources, frame).apply { isFilterBitmap = false }, SceneRenderer.FRAME_MS)
             }
             isFilterBitmap = false
         }
