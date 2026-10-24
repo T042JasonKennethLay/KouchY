@@ -13,14 +13,18 @@ enum class Mood(
     SLEEPING("Tidur", "Zzz… 😴", "Kedai tutup dulu, lagi tidur", false),
     NO_PERMISSION("Belum diizinkan", "Halo! 👋", "Ketuk aku buat kasih izin ya", true);
 
-    fun bubble(phase: DayPhase): String = when (this) {
-        HAPPY -> when (phase) {
-            DayPhase.MORNING -> "ohayō~ ☀️"
-            DayPhase.DAY -> "itadakimasu~ 🍜"
-            DayPhase.EVENING -> "irasshai~! 🏮"
-            DayPhase.NIGHT -> "irasshai~! 🍜"
+    fun bubble(phase: DayPhase, weather: Weather): String = when (this) {
+        HAPPY -> when {
+            weather == Weather.SNOW -> "yuki da~! ❄️"
+            weather == Weather.AUTUMN -> "momiji~ 🍁"
+            weather == Weather.SUMMER && (phase == DayPhase.NIGHT || phase == DayPhase.EVENING) -> "hanabi~! 🎆"
+            weather == Weather.SUMMER -> "atsui~ 🍧"
+            weather == Weather.CLEAR && phase == DayPhase.NIGHT -> "irasshai~! 🌃"
+            phase == DayPhase.MORNING -> "ohayō~ ☀️"
+            phase == DayPhase.DAY -> "itadakimasu~ 🍜"
+            else -> "irasshai~! 🏮"
         }
-        LONELY -> "sepi ya… 🌧️"
+        LONELY -> if (weather == Weather.SNOW) "dingin… sepi… ❄️" else "sepi ya… 🌧️"
         TIRED -> "pusiiing… 😵"
         SLEEPY -> "hoaam… 🥱"
         SLEEPING -> "tutup dulu… 💤"
