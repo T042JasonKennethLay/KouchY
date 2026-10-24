@@ -3,12 +3,17 @@ package com.rumahku.widget
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.roundToInt
+import kotlin.math.sin
 
 data class SceneState(val mood: Mood, val phase: DayPhase)
 
 object SceneRenderer {
     const val SIZE = 96
-    const val FRAMES = 4
+    const val FRAMES = 16
+    const val FRAME_MS = 125
 
     private const val GROUND_Y = 84
 
@@ -16,7 +21,6 @@ object SceneRenderer {
 
     fun upscale(frame: Bitmap, scale: Int): Bitmap =
         Bitmap.createScaledBitmap(frame, SIZE * scale, SIZE * scale, false)
-            .copy(Bitmap.Config.RGB_565, false)
 
     fun render(state: SceneState, frame: Int): Bitmap {
         val bmp = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
@@ -38,6 +42,12 @@ object SceneRenderer {
         return bmp
     }
 
+    private fun wave(frame: Int, cycles: Int = 1, offset: Double = 0.0): Double =
+        sin(2 * PI * (frame.toDouble() * cycles / FRAMES + offset))
+
+    private fun sway(frame: Int, amount: Double, cycles: Int = 1, offset: Double = 0.0): Int =
+        (wave(frame, cycles, offset) * amount).roundToInt()
+
     private class Sky(val top: Int, val bottom: Int)
 
     private fun skyOf(state: SceneState): Sky {
@@ -58,7 +68,7 @@ object SceneRenderer {
     }
 
     private fun skyAt(sky: Sky, y: Int): Int {
-        val band = (y * 8 / GROUND_Y).coerceAtMost(7)
+        val band = (y * 8 / GROUND_Y).coerceIn(0, 7)
         return mix(sky.top, sky.bottom, band / 7f)
     }
 
@@ -68,16 +78,18 @@ object SceneRenderer {
         for (y in 0 until GROUND_Y) c.rect(0, y, SIZE, 1, skyAt(sky, y))
 
         if (state.mood == Mood.LONELY) {
-            listOf(Triple(12, 8, 6), Triple(24, 5, 5), Triple(40, 9, 6), Triple(56, 6, 5)).forEach { (x, y, r) ->
-                c.disk(x, y, r, mix(sky.top, 0x5A6272, 0.4f))
-                c.disk(x, y - 1, r - 1, mix(sky.top, 0x8A93A3, 0.5f))
+            listOf(Triple(12, 8, 6), Triple(24, 5, 5), Triple(40, 9, 6), Triple(56, 6, 5)).forEachIndexed { i, (x, y, r) ->
+                val dx = sway(frame, 1.5, offset = i * 0.25)
+                c.disk(x + dx, y, r, mix(sky.top, 0x5A6272, 0.4f))
+                c.disk(x + dx, y - 1, r - 1, mix(sky.top, 0x8A93A3, 0.5f))
             }
             return
         }
         when (state.phase) {
             DayPhase.NIGHT -> {
                 STARS.forEachIndexed { i, (x, y) ->
-                    c.px(x, y, if ((i + frame) % 3 == 0) 0x7A7FB0 else 0xFFF6D5)
+                    val dim = (frame / 2 + i * 3) % 8 == 0
+                    c.px(x, y, if (dim) 0x7A7FB0 else 0xFFF6D5)
                 }
                 c.disk(48, 7, 4, 0xF6EFCF)
                 c.disk(50, 6, 4, skyAt(sky, 6))
@@ -89,9 +101,8 @@ object SceneRenderer {
             else -> {
                 c.disk(48, 7, 4, 0xFFE27A)
                 c.disk(47, 6, 2, 0xFFF3B8)
-                val drift = frame / 2
-                cloud(c, 14 + drift, 10)
-                cloud(c, 30 - drift, 4)
+                cloud(c, 14 + sway(frame, 2.0), 10)
+                cloud(c, 30 - sway(frame, 2.0), 4)
             }
         }
     }
@@ -104,8 +115,8 @@ object SceneRenderer {
 
     private fun drawRain(c: PixelCanvas, frame: Int) {
         for (i in 0 until 34) {
-            val x = (i * 29 + frame * 2) % SIZE
-            val y = (i * 17 + frame * 7) % GROUND_Y
+            val x = (i * 29) % SIZE
+            val y = (i * 17 + frame * 2 * GROUND_Y / FRAMES) % GROUND_Y
             c.rect(x, y, 1, 3, argb(150, 0xC8D6EA))
         }
     }
@@ -169,10 +180,9 @@ object SceneRenderer {
     }
 
     private fun drawOutsideLantern(c: PixelCanvas, shade: (Int) -> Int, lit: Boolean, frame: Int) {
-        val dx = intArrayOf(0, 1, 0, -1)[frame]
-        val cx = 7 + dx
+        val cx = 7 + sway(frame, 1.0)
         c.rect(7, 31, 1, 3, shade(0x2B2B2B))
-        if (lit) c.disk(cx, 39, 9, argb(40, 0xFFB070))
+        if (lit) c.disk(cx, 39, 9, argb((40 * (1 + 0.15 * wave(frame, 2))).toInt(), 0xFFB070))
         c.rect(cx - 2, 34, 5, 1, shade(0x2B2B2B))
         val widths = intArrayOf(5, 7, 7, 7, 7, 7, 7, 5)
         widths.forEachIndexed { i, w ->
@@ -181,7 +191,7 @@ object SceneRenderer {
         }
         c.px(cx, 37, 0xFFF1D0); c.px(cx - 1, 38, 0xFFF1D0); c.px(cx + 1, 38, 0xFFF1D0); c.px(cx, 39, 0xFFF1D0)
         c.rect(cx - 2, 43, 5, 1, shade(0x2B2B2B))
-        c.px(cx, 44, shade(0xFFC94A))
+        c.px(cx + sway(frame, 1.0, offset = 0.15), 44, shade(0xFFC94A))
     }
 
     private fun drawSakura(c: PixelCanvas, shade: (Int) -> Int) {
@@ -211,12 +221,16 @@ object SceneRenderer {
     private val PETALS = listOf(60 to 20, 30 to 40, 10 to 60, 72 to 50, 45 to 70, 92 to 38, 20 to 12, 55 to 5)
 
     private fun drawPetals(c: PixelCanvas, shade: (Int) -> Int, frame: Int) {
+        val fall = frame * (GROUND_Y / 2) / FRAMES
         PETALS.forEachIndexed { i, (x0, y0) ->
-            val x = Math.floorMod(x0 - frame * 2, SIZE)
-            val y = (y0 + frame * 3) % GROUND_Y
-            val col = shade(if (i % 2 == 0) 0xFFD6E2 else 0xF4A6BE)
-            c.px(x, y, col)
-            c.px(if ((i + frame) % 2 == 0) x + 1 else x, if ((i + frame) % 2 == 0) y else y + 1, col)
+            for (twin in 0..1) {
+                val y = (y0 + twin * GROUND_Y / 2 + fall) % GROUND_Y
+                val x = Math.floorMod(x0 + sway(frame, 2.0, offset = i * 0.13 + twin * 0.5), SIZE)
+                val col = shade(if ((i + twin) % 2 == 0) 0xFFD6E2 else 0xF4A6BE)
+                val flat = (frame / 4 + i + twin) % 2 == 0
+                c.px(x, y, col)
+                c.px(if (flat) x + 1 else x, if (flat) y else y + 1, col)
+            }
         }
     }
 
@@ -241,13 +255,14 @@ object SceneRenderer {
         drawScroll(c)
         drawLantern(c, mood.lampOn)
         drawCat(c, mood, frame)
-        if (sleeping) drawFutonLaid(c) else drawFutonStack(c)
+        if (sleeping) drawFutonLaid(c, frame) else drawFutonStack(c)
         drawKotatsu(c)
         drawCharacter(c, mood, frame)
         drawTableTop(c, mood)
 
         if (mood.lampOn) {
-            val boost = if (state.phase == DayPhase.NIGHT) 1.5f else 1f
+            val flicker = 1 + 0.12 * wave(frame, 2)
+            val boost = (if (state.phase == DayPhase.NIGHT) 1.5 else 1.0) * flicker
             c.disk(48, 41, 26, argb((18 * boost).toInt(), 0xFFD27A), INTERIOR)
             c.disk(48, 41, 16, argb((26 * boost).toInt(), 0xFFD27A), INTERIOR)
             c.disk(48, 41, 7, argb((40 * boost).toInt(), 0xFFE8A8), INTERIOR)
@@ -278,12 +293,12 @@ object SceneRenderer {
             }
         }
         if (state.mood == Mood.LONELY) {
-            for (i in 0..2) c.rect(21 + i * 4, 47 + (frame * 2 + i * 3) % 9, 1, 2, 0xB8CBE6)
+            for (i in 0..2) c.rect(21 + i * 4, 47 + (i * 3 + frame * 18 / FRAMES) % 9, 1, 2, 0xB8CBE6)
         } else if (state.phase == DayPhase.NIGHT) {
             c.rect(28, 48, 2, 2, 0xF6EFCF)
-            c.px(22, 50, if (frame % 2 == 0) 0xFFF6D5 else 0x7A7FB0)
+            c.px(22, 50, if ((frame / 4) % 2 == 0) 0xFFF6D5 else 0x7A7FB0)
         } else {
-            c.rect(19, 49, 3, 1, 0xFFFFFF)
+            c.rect(19 + sway(frame, 1.0), 49, 3, 1, 0xFFFFFF)
         }
     }
 
@@ -347,13 +362,14 @@ object SceneRenderer {
         c.rect(70, 59, 6, 1, 0xCDBB92)
     }
 
-    private fun drawFutonLaid(c: PixelCanvas) {
+    private fun drawFutonLaid(c: PixelCanvas, frame: Int) {
+        val breath = if (wave(frame) > 0.3) 1 else 0
         c.rect(63, 72, 18, 5, 0xF4F1EA)
         c.rect(63, 76, 18, 1, 0xD8D2C4)
         c.rect(70, 64, 10, 5, 0xE8D9B5)
         c.sprite(person(Eyes.CLOSED, Mouth.NEUTRAL, Cheeks.BLUSH).take(12), 66, 57, PALETTE)
-        c.rect(63, 69, 16, 4, 0xF2A7B8)
-        c.rect(63, 69, 16, 1, 0xF7C4D0)
+        c.rect(63, 69 - breath, 16, 4 + breath, 0xF2A7B8)
+        c.rect(63, 69 - breath, 16, 1, 0xF7C4D0)
         for (x in 65..77 step 3) c.px(x, 71, 0xFFFFFF)
     }
 
@@ -366,17 +382,22 @@ object SceneRenderer {
         "KKKKKKKKK",
         ".KKKKKKK.",
     )
-    private val CAT_AWAKE_EYES = "KEKKKKKEK"
+    private const val CAT_AWAKE_EYES = "KEKKKKKEK"
+    private val CAT_TAIL = listOf(
+        listOf(31 to 76, 32 to 75),
+        listOf(31 to 76, 32 to 76),
+        listOf(31 to 76, 32 to 75),
+        listOf(31 to 75, 31 to 74),
+    )
 
     private fun drawCat(c: PixelCanvas, mood: Mood, frame: Int) {
-        val rows = if (mood == Mood.HAPPY && frame != 3) {
-            CAT.toMutableList().also { it[3] = CAT_AWAKE_EYES }
-        } else CAT
-        c.sprite(rows, 22, 71, mapOf('K' to 0xF2A65A, 'E' to 0x3A2A2A, 'w' to 0xFFF6EA, 'P' to 0xF29BB5))
+        val awake = mood == Mood.HAPPY && frame != 6
+        val rows = if (awake) CAT.toMutableList().also { it[3] = CAT_AWAKE_EYES } else CAT
+        val ear = if (frame in 9..10) 1 else 0
+        c.sprite(rows.drop(ear), 22, 71 + ear, mapOf('K' to 0xF2A65A, 'E' to 0x3A2A2A, 'w' to 0xFFF6EA, 'P' to 0xF29BB5))
         for (x in 23..29 step 3) c.px(x, 73, 0xD9822B)
-        val tail = listOf(listOf(31 to 76, 32 to 75), listOf(31 to 76, 32 to 76), listOf(31 to 76, 32 to 75), listOf(31 to 75, 31 to 74))
         c.px(30, 76, 0xF2A65A)
-        tail[frame].forEach { (x, y) -> c.px(x, y, 0xF2A65A) }
+        CAT_TAIL[(frame / 4) % CAT_TAIL.size].forEach { (x, y) -> c.px(x, y, 0xF2A65A) }
     }
 
     private enum class Eyes { OPEN, CLOSED, HAPPY, TIRED }
@@ -439,18 +460,23 @@ object SceneRenderer {
     }
 
     private fun drawCharacter(c: PixelCanvas, mood: Mood, frame: Int) {
-        val blink = frame == 3
+        val blink = frame == FRAMES - 1
+        val hop = frame in 2..5 || frame in 10..13
+        val nod = frame in 4..11
         val sprite = when (mood) {
             Mood.SLEEPING -> return
-            Mood.HAPPY -> person(if (frame % 2 == 1) Eyes.HAPPY else Eyes.OPEN, Mouth.SMILE, Cheeks.BLUSH)
+            Mood.HAPPY -> person(
+                when { hop -> Eyes.HAPPY; blink -> Eyes.CLOSED; else -> Eyes.OPEN },
+                Mouth.SMILE, Cheeks.BLUSH,
+            )
             Mood.LONELY -> person(if (blink) Eyes.CLOSED else Eyes.OPEN, Mouth.FROWN, Cheeks.PLAIN, sad = true)
             Mood.TIRED -> person(Eyes.TIRED, Mouth.FROWN, Cheeks.BAGS)
-            Mood.SLEEPY -> person(Eyes.CLOSED, if (frame >= 2) Mouth.YAWN else Mouth.NEUTRAL, Cheeks.BLUSH)
+            Mood.SLEEPY -> person(Eyes.CLOSED, if (frame in 8..13) Mouth.YAWN else Mouth.NEUTRAL, Cheeks.BLUSH)
             Mood.NO_PERMISSION -> person(if (blink) Eyes.CLOSED else Eyes.OPEN, Mouth.SMILE, Cheeks.BLUSH)
         }
         val dy = when (mood) {
-            Mood.HAPPY -> if (frame % 2 == 1) -1 else 0
-            Mood.SLEEPY -> if (frame == 1 || frame == 2) 1 else 0
+            Mood.HAPPY -> if (hop) -1 else 0
+            Mood.SLEEPY -> if (nod) 1 else 0
             else -> 0
         }
         c.sprite(sprite, CHAR_X, CHAR_Y + dy, PALETTE)
@@ -461,29 +487,43 @@ object SceneRenderer {
     private val QUESTION = listOf("QQQ", "..Q", ".Q.", "...", ".Q.")
     private val ZED = listOf("ZZZZ", "..Z.", ".Z..", "ZZZZ")
     private val STAR = listOf(".Y.", "YYY", ".Y.")
-    private val TIRED_ORBIT = listOf(38 to 46, 42 to 43, 52 to 43, 56 to 46)
+
+    private fun fade(step: Int, start: Int = 10) = 255 - (step - start).coerceAtLeast(0) * 40
 
     private fun drawEffects(c: PixelCanvas, mood: Mood, frame: Int) {
         when (mood) {
             Mood.HAPPY -> {
-                c.sprite(NOTE, 58, 49 - frame, mapOf('N' to 0xFF8FB0))
-                if (frame % 2 == 0) c.sprite(HEART, 35, 50 - frame, mapOf('R' to 0xFF6F8F))
-                c.px(39 + frame % 2, 59 - frame, argb(200 - frame * 40, 0xFFFFFF))
+                c.sprite(NOTE, 58 + sway(frame, 1.0, 2), 50 - frame / 2, mapOf('N' to argb(fade(frame), 0xFF8FB0)))
+                val h = (frame + 8) % FRAMES
+                c.sprite(HEART, 34 + sway(h, 1.0, 2), 52 - h / 2, mapOf('R' to argb(fade(h), 0xFF6F8F)))
+                for (k in 0..1) {
+                    val s = (frame + k * 8) % FRAMES
+                    c.px(39 + sway(s, 1.0), 60 - s / 3, argb(200 - s * 12, 0xFFFFFF))
+                }
             }
-            Mood.LONELY -> if (frame < 3) c.rect(CHAR_X + 4, CHAR_Y + 9 + frame, 1, 2, 0x7FC4FF)
+            Mood.LONELY -> {
+                if (frame < 12) c.rect(CHAR_X + 4, CHAR_Y + 9 + frame / 3, 1, 2, 0x7FC4FF)
+                val r = (frame + 8) % FRAMES
+                if (r < 12) c.rect(CHAR_X + 9, CHAR_Y + 9 + r / 3, 1, 2, 0x7FC4FF)
+            }
             Mood.TIRED -> {
-                listOf(frame, (frame + 2) % 4).forEach { i ->
-                    val (x, y) = TIRED_ORBIT[i]
+                for (k in 0..1) {
+                    val a = 2 * PI * frame / FRAMES + k * PI
+                    val x = 48 + (9 * cos(a)).roundToInt()
+                    val y = 44 + (2.5 * sin(a)).roundToInt()
                     c.sprite(STAR, x - 1, y - 1, mapOf('Y' to 0xFFE27A))
                 }
-                c.rect(CHAR_X + 14, CHAR_Y + 4 + frame % 2, 1, 2, 0x7FC4FF)
+                val drip = frame % 8
+                c.rect(CHAR_X + 14, CHAR_Y + 4 + drip / 3, 1, 2, argb(255 - drip * 25, 0x7FC4FF))
             }
-            Mood.SLEEPY -> if (frame < 2) c.sprite(ZED, 58, 46 - frame, mapOf('Z' to 0xE8E8FF))
+            Mood.SLEEPY -> if (frame < 12) {
+                c.sprite(ZED, 58 + sway(frame, 1.0), 47 - frame / 3, mapOf('Z' to argb(fade(frame, 8), 0xE8E8FF)))
+            }
             Mood.SLEEPING -> for (k in 0..1) {
-                val s = (frame + k * 2) % 4
-                c.sprite(ZED, 62 - s, 52 - s * 3, mapOf('Z' to argb(255 - s * 45, 0xE8E8FF)))
+                val s = (frame + k * 8) % FRAMES
+                c.sprite(ZED, 62 - s / 4, 52 - s * 3 / 4, mapOf('Z' to argb(255 - s * 12, 0xE8E8FF)))
             }
-            Mood.NO_PERMISSION -> if (frame != 3) c.sprite(QUESTION, 58, 44, mapOf('Q' to 0xFFE08A))
+            Mood.NO_PERMISSION -> c.sprite(QUESTION, 58, 44 + sway(frame, 1.0), mapOf('Q' to 0xFFE08A))
         }
     }
 

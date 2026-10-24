@@ -19,7 +19,8 @@ The scene also follows the time of day (morning, day, evening, night) and animat
 - Kotlin, no third-party dependencies
 - `UsageStatsManager` for screen time and unlock count
 - Pixel art rendered at runtime on a 96x96 canvas
-- `AppWidgetProvider` with a `ViewFlipper` for frame animation
+- `AppWidgetProvider` with a `ViewFlipper` playing 16 frames at 8 fps
+- Frames served as PNGs through a read-only `ContentProvider`, avoiding the RemoteViews bitmap size limit
 - Inexact repeating alarm for refreshes every ~15 minutes
 
 ## Build

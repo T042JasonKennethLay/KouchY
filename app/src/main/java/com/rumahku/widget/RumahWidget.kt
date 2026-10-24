@@ -7,7 +7,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
+import android.net.Uri
 import android.os.SystemClock
 import android.widget.RemoteViews
 
@@ -35,7 +35,12 @@ class RumahWidget : AppWidgetProvider() {
 }
 
 object WidgetUpdater {
-    private val FRAME_IDS = intArrayOf(R.id.frame0, R.id.frame1, R.id.frame2, R.id.frame3)
+    private val FRAME_IDS = intArrayOf(
+        R.id.frame0, R.id.frame1, R.id.frame2, R.id.frame3,
+        R.id.frame4, R.id.frame5, R.id.frame6, R.id.frame7,
+        R.id.frame8, R.id.frame9, R.id.frame10, R.id.frame11,
+        R.id.frame12, R.id.frame13, R.id.frame14, R.id.frame15,
+    )
 
     fun updateAll(ctx: Context) {
         val manager = AppWidgetManager.getInstance(ctx)
@@ -47,28 +52,20 @@ object WidgetUpdater {
         val mood = MoodEngine.decide(stats, hour)
         val phase = DayPhase.of(hour)
         val frames = SceneRenderer.renderFrames(SceneState(mood, phase))
+        val uris = FrameStore.save(ctx, frames)
+        frames.forEach { it.recycle() }
 
-        for (scale in intArrayOf(4, 3, 2)) {
-            try {
-                manager.updateAppWidget(ids, buildViews(ctx, frames, scale, mood.bubble(phase), stats))
-                return
-            } catch (e: RuntimeException) {
-                continue
-            }
-        }
+        manager.updateAppWidget(ids, buildViews(ctx, uris, mood.bubble(phase), stats))
     }
 
     private fun buildViews(
         ctx: Context,
-        frames: List<Bitmap>,
-        scale: Int,
+        frames: List<Uri>,
         bubble: String,
         stats: PhoneStats,
     ): RemoteViews {
         val views = RemoteViews(ctx.packageName, R.layout.widget_rumah)
-        frames.forEachIndexed { i, frame ->
-            views.setImageViewBitmap(FRAME_IDS[i], SceneRenderer.upscale(frame, scale))
-        }
+        frames.forEachIndexed { i, uri -> views.setImageViewUri(FRAME_IDS[i], uri) }
         views.setTextViewText(R.id.bubble, bubble)
 
         val click = if (stats.hasPermission) {
