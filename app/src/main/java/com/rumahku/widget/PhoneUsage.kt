@@ -85,14 +85,6 @@ object PhoneUsage {
         )
     }
 
-    fun formatStats(stats: PhoneStats): String {
-        if (!stats.hasPermission) return "belum ada izin screen time"
-        val h = stats.screenMinutes / 60
-        val m = stats.screenMinutes % 60
-        val time = if (h > 0) "${h}j ${m}m" else "${m}m"
-        return "📱 $time hari ini · ${stats.unlocks}x buka"
-    }
-
     fun currentHour(): Int = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
 
     private fun startOfDay(now: Long): Long = Calendar.getInstance().apply {

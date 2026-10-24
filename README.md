@@ -34,7 +34,7 @@ Invite up to 3 friends into the shop. Each guest has a name, hair style, hair co
 
 ## App
 
-The companion app is fully pixel styled: starry backdrop, neon pixel font headers, chunky 3D pixel buttons, a mood panel with segmented screen time bars, guest cards with pixel portraits and a guest editor with a live preview of the shop.
+The companion app is fully pixel styled. Every piece of text, including buttons, inputs, dialogs and the widget speech bubble, is drawn with one custom pixel font. The screens use a starry backdrop, chunky 3D pixel buttons, a mood panel with segmented screen time bars, guest cards with pixel portraits and a guest editor with a live preview of the shop.
 
 ## Tech
 

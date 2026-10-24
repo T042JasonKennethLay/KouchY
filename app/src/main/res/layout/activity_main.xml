@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,14 +22,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <ImageView
-            android:id="@+id/header_sub"
+        <com.rumahku.widget.PixelTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp" />
+            android:layout_marginTop="10dp"
+            app:pixelColor="#6AE0FF"
+            app:pixelSize="2.5"
+            app:pixelText="Kedai ramen di HP kamu" />
 
         <FrameLayout
-            android:id="@+id/preview_frame"
             android:layout_width="312dp"
             android:layout_height="312dp"
             android:layout_marginTop="22dp"
@@ -40,36 +42,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="fitXY" />
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|start"
-                android:layout_marginStart="10dp"
-                android:layout_marginTop="10dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/preview_bubble"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bubble_bg"
-                    android:fontFamily="sans-serif-medium"
-                    android:paddingStart="11dp"
-                    android:paddingTop="4dp"
-                    android:paddingEnd="11dp"
-                    android:paddingBottom="5dp"
-                    android:textColor="#3B2A3A"
-                    android:textSize="15sp" />
-
-                <ImageView
-                    android:layout_width="13dp"
-                    android:layout_height="9dp"
-                    android:layout_gravity="end"
-                    android:layout_marginTop="-1.5dp"
-                    android:layout_marginEnd="14dp"
-                    android:src="@drawable/bubble_tail" />
-            </LinearLayout>
         </FrameLayout>
 
         <LinearLayout
@@ -85,22 +57,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <TextView
+            <com.rumahku.widget.PixelTextView
                 android:id="@+id/mood_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:fontFamily="monospace"
-                android:textColor="#FFF3E0"
-                android:textSize="22sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="14dp"
+                app:pixelColor="#FFF3E0"
+                app:pixelSize="5" />
 
-            <TextView
+            <com.rumahku.widget.PixelTextView
                 android:id="@+id/mood_line"
-                style="@style/PixelBody"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp" />
+                android:layout_marginTop="8dp"
+                app:pixelColor="#E8D6BF"
+                app:pixelSize="2.5" />
 
             <LinearLayout
                 android:id="@+id/stats_container"
@@ -116,14 +87,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp" />
 
-        <TextView
-            style="@style/PixelBody"
+        <com.rumahku.widget.PixelTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="Ajak temanmu mampir! Mereka duduk di kursi merah dan muncul di widget."
-            android:textColor="#A898C8"
-            android:textSize="12sp" />
+            android:layout_marginTop="10dp"
+            app:pixelColor="#A898C8"
+            app:pixelSize="2.5"
+            app:pixelText="Ajak temanmu mampir. Mereka duduk di kursi merah dan muncul di widget." />
 
         <LinearLayout
             android:id="@+id/guest_list"
@@ -131,9 +101,10 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <Button
+        <com.rumahku.widget.PixelButton
             android:id="@+id/btn_add_guest"
-            style="@style/PixelButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:background="@drawable/btn_pink" />
 
@@ -143,18 +114,18 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp" />
 
-        <TextView
-            style="@style/PixelBody"
+        <com.rumahku.widget.PixelTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="Coba lihat semua mood, waktu, dan cuaca."
-            android:textColor="#A898C8"
-            android:textSize="12sp" />
+            android:layout_marginTop="10dp"
+            app:pixelColor="#A898C8"
+            app:pixelSize="2.5"
+            app:pixelText="Coba lihat semua mood, waktu, dan cuaca." />
 
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:scrollbars="none">
 
             <LinearLayout
@@ -194,28 +165,30 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp" />
 
-        <Button
+        <com.rumahku.widget.PixelButton
             android:id="@+id/btn_permission"
-            style="@style/PixelButton"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/btn_cyan"
-            android:text="Kasih izin baca screen time" />
-
-        <Button
-            android:id="@+id/btn_pin"
-            style="@style/PixelButton"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/btn_pink"
-            android:text="Pasang widget ke Home Screen" />
-
-        <TextView
-            style="@style/PixelBody"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:gravity="center"
-            android:text="Widget update tiap ~15 menit. Ketuk widget buat refresh."
-            android:textColor="#5A4A84"
-            android:textSize="11sp" />
+            android:layout_marginTop="14dp"
+            android:background="@drawable/btn_cyan"
+            app:pixelText="Kasih izin baca screen time" />
+
+        <com.rumahku.widget.PixelButton
+            android:id="@+id/btn_pin"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/btn_pink"
+            app:pixelText="Pasang widget ke home screen" />
+
+        <com.rumahku.widget.PixelTextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            app:pixelCentered="true"
+            app:pixelColor="#5A4A84"
+            app:pixelShadow="false"
+            app:pixelSize="2"
+            app:pixelText="Widget update tiap 15 menit. Ketuk widget buat refresh." />
     </LinearLayout>
 </ScrollView>

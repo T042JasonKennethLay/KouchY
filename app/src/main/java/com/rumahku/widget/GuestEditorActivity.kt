@@ -1,7 +1,6 @@
 package com.rumahku.widget
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.graphics.drawable.AnimationDrawable
 import android.os.Bundle
 import android.os.Handler
@@ -9,12 +8,9 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
 
 class GuestEditorActivity : Activity() {
     private lateinit var draft: Guest
@@ -36,30 +32,28 @@ class GuestEditorActivity : Activity() {
         )
 
         PixelUi.setText(findViewById(R.id.header_title), if (editing) "EDIT TAMU" else "TAMU BARU", PixelUi.PINK, 5f, 0x5A1A6E)
-        PixelUi.setText(findViewById(R.id.label_name), "NAMA", PixelUi.CYAN, 2.5f)
-        PixelUi.setText(findViewById(R.id.label_hair), "GAYA RAMBUT", PixelUi.YELLOW, 3f)
-        PixelUi.setText(findViewById(R.id.label_hair_color), "WARNA RAMBUT", PixelUi.YELLOW, 3f)
-        PixelUi.setText(findViewById(R.id.label_outfit), "WARNA BAJU", PixelUi.YELLOW, 3f)
-        PixelUi.setText(findViewById(R.id.label_activity), "LAGI NGAPAIN?", PixelUi.YELLOW, 3f)
 
         val input = findViewById<EditText>(R.id.name_input)
         input.setText(draft.name)
+        input.setOnFocusChangeListener { _, _ -> showName() }
         input.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) = Unit
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) = Unit
             override fun afterTextChanged(s: Editable?) {
                 draft = draft.copy(name = s?.toString().orEmpty())
+                findViewById<View>(R.id.error).visibility = View.GONE
                 refresh(debounce = true)
             }
         })
 
-        val save = findViewById<Button>(R.id.btn_save)
-        save.text = if (editing) "Simpan perubahan" else "Ajak duduk! 🍜"
-        save.setOnClickListener { saveGuest() }
-
-        val delete = findViewById<Button>(R.id.btn_delete)
-        delete.visibility = if (editing) View.VISIBLE else View.GONE
-        delete.setOnClickListener { confirmDelete() }
+        findViewById<PixelButton>(R.id.btn_save).apply {
+            text = if (editing) "Simpan perubahan" else "Ajak duduk"
+            setOnClickListener { saveGuest() }
+        }
+        findViewById<PixelButton>(R.id.btn_delete).apply {
+            visibility = if (editing) View.VISIBLE else View.GONE
+            setOnClickListener { confirmDelete() }
+        }
 
         refresh(debounce = false)
     }
@@ -69,11 +63,24 @@ class GuestEditorActivity : Activity() {
         super.onDestroy()
     }
 
+    private fun showName() {
+        val display = findViewById<PixelTextView>(R.id.name_display)
+        val focused = findViewById<EditText>(R.id.name_input).hasFocus()
+        if (draft.name.isEmpty()) {
+            display.text = if (focused) "_" else "Ketik nama"
+            display.color = PixelUi.MUTED
+        } else {
+            display.text = draft.name + if (focused) "_" else ""
+            display.color = PixelUi.CREAM
+        }
+    }
+
     private fun refresh(debounce: Boolean) {
+        showName()
         PixelUi.setBitmap(findViewById(R.id.portrait), GuestArt.portrait(draft), 4f)
         val tag = draft.tag
-        findViewById<TextView>(R.id.tag_hint).text =
-            if (tag.isEmpty()) "Papan nama di widget: (kosong)" else "Papan nama di widget: $tag"
+        findViewById<PixelTextView>(R.id.tag_hint).text =
+            if (tag.isEmpty()) "Papan nama: -" else "Papan nama: $tag"
         buildOptions()
         handler.removeCallbacks(renderPreview)
         if (debounce) handler.postDelayed(renderPreview, 250) else renderScene()
@@ -103,9 +110,9 @@ class GuestEditorActivity : Activity() {
         val activities = findViewById<LinearLayout>(R.id.activity_row)
         activities.removeAllViews()
         GuestActivity.entries.forEach { activity ->
-            activities.addView(PixelUi.chip(this, "${activity.emoji} ${activity.label}") {
-                update(draft.copy(activity = activity))
-            }.apply { isSelected = activity == draft.activity })
+            activities.addView(PixelUi.chip(this, activity.label) { update(draft.copy(activity = activity)) }.apply {
+                isSelected = activity == draft.activity
+            })
         }
     }
 
@@ -133,25 +140,26 @@ class GuestEditorActivity : Activity() {
 
     private fun saveGuest() {
         if (draft.name.isBlank()) {
-            Toast.makeText(this, "Kasih nama dulu ya 🙂", Toast.LENGTH_SHORT).show()
+            findViewById<View>(R.id.error).visibility = View.VISIBLE
             return
         }
         GuestStore.upsert(this, draft.copy(name = draft.name.trim()))
         WidgetUpdater.updateAll(this)
-        Toast.makeText(this, "${draft.name.trim()} duduk di kedai! 🍜", Toast.LENGTH_SHORT).show()
         finish()
     }
 
     private fun confirmDelete() {
-        AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
-            .setTitle("Pulangkan ${draft.name}?")
-            .setPositiveButton("Pulangkan") { _, _ ->
-                GuestStore.delete(this, draft.id)
-                WidgetUpdater.updateAll(this)
-                finish()
-            }
-            .setNegativeButton("Batal", null)
-            .show()
+        PixelDialog.show(
+            this,
+            title = "Pulangkan ${draft.name}?",
+            message = "${draft.name} bakal pulang dari kedai.",
+            confirm = "Pulangkan",
+            cancel = "Batal",
+        ) {
+            GuestStore.delete(this, draft.id)
+            WidgetUpdater.updateAll(this)
+            finish()
+        }
     }
 
     companion object {
