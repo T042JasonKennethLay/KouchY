@@ -12,7 +12,21 @@ A tiny late-night Tokyo ramen shop that lives on your Android home screen. The s
 | Ngantuk | Still on the phone after 11 PM |
 | Tidur | Phone untouched at night |
 
-It is always raining on this little street: neon ラーメン sign, swaying noren and lanterns, steaming bowls, a glowing vending machine, wet asphalt reflections and puddle ripples. The sky follows the time of day, the rain gets heavier when the owner is lonely, and the shop closes while they sleep.
+Neon ラーメン sign, swaying noren and lanterns, steaming bowls, a glowing vending machine and a purple neon skyline behind the shop. The sky follows the time of day and the shop closes while the owner sleeps.
+
+## Weather
+
+The weather shuffles every 3 hours:
+
+| Weather | Scene |
+|---|---|
+| Hujan | Slanted rain, wet asphalt reflections, puddle ripples, dripping eaves |
+| Salju | Falling snow, snow caps on the shop, snowy street with tire tracks |
+| Gugur | Drifting maple leaves, leaf piles, big orange moon |
+| Musim panas | Fireworks at night, wind chime, big summer clouds |
+| Cerah | Clear night with a vivid purple neon skyline |
+
+When the owner is lonely the sky turns grey and it starts to drizzle.
 
 ## Tech
 

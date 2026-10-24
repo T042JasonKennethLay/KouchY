@@ -51,11 +51,12 @@ object WidgetUpdater {
         val hour = PhoneUsage.currentHour()
         val mood = MoodEngine.decide(stats, hour)
         val phase = DayPhase.of(hour)
-        val frames = SceneRenderer.renderFrames(SceneState(mood, phase))
+        val weather = Weather.current()
+        val frames = SceneRenderer.renderFrames(SceneState(mood, phase, weather))
         val uris = FrameStore.save(ctx, frames)
         frames.forEach { it.recycle() }
 
-        manager.updateAppWidget(ids, buildViews(ctx, uris, mood.bubble(phase), stats))
+        manager.updateAppWidget(ids, buildViews(ctx, uris, mood.bubble(phase, weather), stats))
     }
 
     private fun buildViews(

@@ -20,6 +20,7 @@ import android.widget.Toast
 class MainActivity : Activity() {
     private var previewMood: Mood? = null
     private var previewPhase: DayPhase? = null
+    private var previewWeather: Weather? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,11 +31,14 @@ class MainActivity : Activity() {
         findViewById<Button>(R.id.btn_pin).setOnClickListener { pinWidget() }
 
         val moodRow = findViewById<LinearLayout>(R.id.mood_row)
-        moodRow.addView(chip("Asli") { previewMood = null; previewPhase = null; render() })
+        moodRow.addView(chip("Asli") { previewMood = null; previewPhase = null; previewWeather = null; render() })
         Mood.entries.forEach { mood -> moodRow.addView(chip(mood.label) { previewMood = mood; render() }) }
 
         val phaseRow = findViewById<LinearLayout>(R.id.phase_row)
         DayPhase.entries.forEach { phase -> phaseRow.addView(chip(phase.label) { previewPhase = phase; render() }) }
+
+        val weatherRow = findViewById<LinearLayout>(R.id.weather_row)
+        Weather.entries.forEach { weather -> weatherRow.addView(chip(weather.label) { previewWeather = weather; render() }) }
     }
 
     override fun onResume() {
@@ -49,10 +53,11 @@ class MainActivity : Activity() {
         val hour = PhoneUsage.currentHour()
         val mood = previewMood ?: MoodEngine.decide(stats, hour)
         val phase = previewPhase ?: DayPhase.of(hour)
+        val weather = previewWeather ?: Weather.current()
 
         val anim = AnimationDrawable().apply {
             isOneShot = false
-            SceneRenderer.renderFrames(SceneState(mood, phase)).forEach { frame ->
+            SceneRenderer.renderFrames(SceneState(mood, phase, weather)).forEach { frame ->
                 addFrame(BitmapDrawable(resources, frame).apply { isFilterBitmap = false }, SceneRenderer.FRAME_MS)
             }
             isFilterBitmap = false
@@ -60,7 +65,7 @@ class MainActivity : Activity() {
         findViewById<ImageView>(R.id.preview).setImageDrawable(anim)
         anim.start()
 
-        findViewById<TextView>(R.id.preview_bubble).text = mood.bubble(phase)
+        findViewById<TextView>(R.id.preview_bubble).text = mood.bubble(phase, weather)
         findViewById<TextView>(R.id.mood_title).text = mood.title
         findViewById<TextView>(R.id.mood_line).text = mood.line
         findViewById<TextView>(R.id.stats).text = PhoneUsage.formatStats(stats)

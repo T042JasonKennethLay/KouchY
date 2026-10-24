@@ -8,7 +8,7 @@ import kotlin.math.cos
 import kotlin.math.roundToInt
 import kotlin.math.sin
 
-data class SceneState(val mood: Mood, val phase: DayPhase)
+data class SceneState(val mood: Mood, val phase: DayPhase, val weather: Weather)
 
 object SceneRenderer {
     const val SIZE = 96
@@ -17,6 +17,9 @@ object SceneRenderer {
 
     private const val STREET_Y = 82
     private val OPENING = intArrayOf(16, 34, 79, 63)
+
+    private enum class Precip { NONE, DRIZZLE, RAIN, HEAVY_RAIN, SNOW, HEAVY_SNOW, LEAVES }
+    private enum class Ground { WET, SNOW, DRY }
 
     fun renderFrames(state: SceneState): List<Bitmap> = List(FRAMES) { render(state, it) }
 
@@ -27,28 +30,47 @@ object SceneRenderer {
         val bmp = Bitmap.createBitmap(SIZE, SIZE, Bitmap.Config.ARGB_8888)
         val c = PixelCanvas(bmp)
         val mood = state.mood
+        val weather = state.weather
+        val lonely = mood == Mood.LONELY
         val open = mood != Mood.SLEEPING
         val dark = state.phase == DayPhase.NIGHT || state.phase == DayPhase.EVENING
+        val precip = precipOf(weather, lonely)
+        val ground = when (precip) {
+            Precip.SNOW, Precip.HEAVY_SNOW -> Ground.SNOW
+            Precip.DRIZZLE, Precip.RAIN, Precip.HEAVY_RAIN -> Ground.WET
+            else -> Ground.DRY
+        }
 
-        drawSky(c, state, frame)
-        drawCity(c, dark, frame)
-        drawFacade(c, dark)
+        drawSky(c, state)
+        drawCelestial(c, state, frame)
+        drawSkyline(c, state, dark, frame)
+        drawSideProps(c, frame)
+        drawFacade(c, dark, ground)
         drawWires(c)
         drawSign(c, mood, frame)
         drawInterior(c, mood, frame)
         drawNoren(c, frame)
         drawAwning(c)
+        if (weather == Weather.SUMMER) drawFurin(c, frame)
         drawLanterns(c, open, frame)
         drawCounterFront(c)
         drawStools(c)
-        if (mood == Mood.HAPPY) drawCustomer(c, frame)
-        if (mood != Mood.LONELY && mood != Mood.SLEEPING) drawCat(c, mood == Mood.HAPPY, frame)
+        if (mood == Mood.HAPPY) drawCustomer(c, weather, ground == Ground.WET, frame)
+        if (!lonely && open) drawCat(c, mood == Mood.HAPPY, frame)
         drawVendingMachine(c, frame)
-        drawStreet(c, mood, dark, frame)
-        drawRain(c, mood, frame)
-        drawDrips(c, frame)
+        drawStreet(c, open, dark, ground, weather, frame)
+        if (ground == Ground.SNOW) drawSnowCaps(c, dark)
+        drawPrecipitation(c, precip, frame)
+        if (ground == Ground.WET) drawDrips(c, frame)
         drawEffects(c, mood, frame)
         return bmp
+    }
+
+    private fun precipOf(weather: Weather, lonely: Boolean) = when (weather) {
+        Weather.RAIN -> if (lonely) Precip.HEAVY_RAIN else Precip.RAIN
+        Weather.SNOW -> if (lonely) Precip.HEAVY_SNOW else Precip.SNOW
+        Weather.AUTUMN -> if (lonely) Precip.DRIZZLE else Precip.LEAVES
+        else -> if (lonely) Precip.DRIZZLE else Precip.NONE
     }
 
     private fun wave(frame: Int, cycles: Int = 1, offset: Double = 0.0): Double =
@@ -59,78 +81,224 @@ object SceneRenderer {
 
     private fun shimmer(x: Int, y: Int, frame: Int) = y % 2 == 1 && (x / 3 + y + frame / 4) % 4 != 0
 
+    private fun underAwning(x: Int, y: Int) = x in 11..84 && y in 31..65
+
+    private fun particles(seeds: Int, copies: Int, frame: Int, block: (id: Int, x: Int, y: Int) -> Unit) {
+        val step = SIZE / copies
+        val fall = frame * step / FRAMES
+        for (i in 0 until seeds) {
+            val x0 = (i * 37 + i * i * 7) % SIZE
+            val y0 = (i * 53) % step
+            for (k in 0 until copies) block(i * copies + k, x0, (y0 + k * step + fall) % SIZE)
+        }
+    }
+
     private class Sky(val top: Int, val bottom: Int)
 
     private fun skyOf(state: SceneState): Sky {
+        val w = state.weather
         val base = when (state.phase) {
-            DayPhase.MORNING -> Sky(0x6F7C92, 0xA8A6B4)
-            DayPhase.DAY -> Sky(0x5E6B80, 0x8C97A8)
-            DayPhase.EVENING -> Sky(0x2B2350, 0x6A4A6E)
-            DayPhase.NIGHT -> Sky(0x0E1226, 0x2E2446)
+            DayPhase.NIGHT -> when (w) {
+                Weather.CLEAR -> Sky(0x0B0820, 0x3A1A5E)
+                Weather.SUMMER -> Sky(0x0A1030, 0x2A2A5A)
+                Weather.RAIN -> Sky(0x0E1226, 0x2E2446)
+                Weather.SNOW -> Sky(0x161A36, 0x3A3E66)
+                Weather.AUTUMN -> Sky(0x1A1028, 0x4A2438)
+            }
+            DayPhase.EVENING -> when (w) {
+                Weather.CLEAR -> Sky(0x3A2A6E, 0xF29A7A)
+                Weather.SUMMER -> Sky(0x4A3A8E, 0xFFB070)
+                Weather.RAIN -> Sky(0x2B2350, 0x6A4A6E)
+                Weather.SNOW -> Sky(0x5A6088, 0xC8B4C8)
+                Weather.AUTUMN -> Sky(0x5A2A4A, 0xF2884A)
+            }
+            DayPhase.DAY -> when (w) {
+                Weather.CLEAR -> Sky(0x5AA8E8, 0xC8E6F7)
+                Weather.SUMMER -> Sky(0x3E9AE8, 0xBDE8FF)
+                Weather.RAIN -> Sky(0x5E6B80, 0x8C97A8)
+                Weather.SNOW -> Sky(0xA8B4C8, 0xDDE3EC)
+                Weather.AUTUMN -> Sky(0x8AB4D8, 0xF2D2A8)
+            }
+            DayPhase.MORNING -> when (w) {
+                Weather.CLEAR -> Sky(0x8EC5E8, 0xFCE1D4)
+                Weather.SUMMER -> Sky(0x7CC3F0, 0xFFE8C8)
+                Weather.RAIN -> Sky(0x6F7C92, 0xA8A6B4)
+                Weather.SNOW -> Sky(0xB8C4D8, 0xE8E8F0)
+                Weather.AUTUMN -> Sky(0x9CB8D8, 0xF7D0A8)
+            }
         }
         if (state.mood != Mood.LONELY) return base
         return Sky(mix(base.top, 0x3A4050, 0.4f), mix(base.bottom, 0x5A6070, 0.4f))
     }
 
-    private fun drawSky(c: PixelCanvas, state: SceneState, frame: Int) {
+    private fun drawSky(c: PixelCanvas, state: SceneState) {
         val sky = skyOf(state)
         for (y in 0 until STREET_Y) {
             val band = (y * 6 / STREET_Y).coerceIn(0, 5)
             c.rect(0, y, SIZE, 1, mix(sky.top, sky.bottom, band / 5f))
         }
-        val cloud = mix(sky.top, 0x000000, 0.25f)
-        listOf(8 to 2, 30 to 1, 60 to 3, 86 to 1).forEachIndexed { i, (x, y) ->
-            val dx = sway(frame, 2.0, offset = i * 0.3)
-            c.disk(x + dx, y, 5, cloud)
-            c.disk(x + dx + 5, y + 1, 4, cloud)
+    }
+
+    private val STARS = listOf(4 to 2, 14 to 1, 27 to 3, 42 to 1, 58 to 2, 66 to 9, 80 to 3, 93 to 1, 52 to 7)
+
+    private fun drawCelestial(c: PixelCanvas, state: SceneState, frame: Int) {
+        val sky = skyOf(state)
+        val overcast = state.mood == Mood.LONELY || state.weather == Weather.RAIN || state.weather == Weather.SNOW
+        if (overcast) {
+            val cloud = mix(sky.top, if (state.weather == Weather.SNOW) 0xC8CCD8 else 0x000000, 0.25f)
+            listOf(8 to 2, 30 to 1, 60 to 3, 86 to 1).forEachIndexed { i, (x, y) ->
+                val dx = sway(frame, 2.0, offset = i * 0.3)
+                c.disk(x + dx, y, 5, cloud)
+                c.disk(x + dx + 5, y + 1, 4, cloud)
+            }
+            return
+        }
+        when (state.phase) {
+            DayPhase.NIGHT, DayPhase.EVENING -> {
+                if (state.phase == DayPhase.NIGHT) {
+                    STARS.forEachIndexed { i, (x, y) ->
+                        c.px(x, y, if ((frame / 2 + i * 3) % 8 == 0) 0x7A7FB0 else 0xFFF6D5)
+                    }
+                    if (state.weather == Weather.AUTUMN) {
+                        c.disk(72, 6, 5, 0xFFD08A)
+                        c.disk(71, 5, 2, 0xFFE4B0)
+                    } else {
+                        c.disk(72, 6, 4, 0xF6EFCF)
+                        c.disk(74, 5, 4, mix(sky.top, sky.bottom, 0f))
+                    }
+                } else {
+                    c.disk(72, 10, 5, 0xFFB070)
+                    c.disk(72, 10, 3, 0xFFD08A)
+                }
+                if (state.weather == Weather.SUMMER) drawFireworks(c, frame)
+            }
+            else -> {
+                c.disk(72, 6, 4, 0xFFE27A)
+                c.disk(71, 5, 2, 0xFFF3B8)
+                val big = state.weather == Weather.SUMMER
+                cloud(c, 18 + sway(frame, 2.0), 3, big)
+                cloud(c, 48 - sway(frame, 2.0), 6, big)
+            }
         }
     }
 
-    private fun drawCity(c: PixelCanvas, dark: Boolean, frame: Int) {
-        val wall = if (dark) 0x1E1A2E else 0x4A4A5C
-        val lit = if (dark) 0xFFD98A else 0x9AA2B2
-        val off = if (dark) 0x2E2A40 else 0x5E6272
+    private fun cloud(c: PixelCanvas, x: Int, y: Int, big: Boolean) {
+        if (big) {
+            c.disk(x + 3, y + 1, 3, 0xFFFFFF)
+            c.disk(x + 7, y, 4, 0xFFFFFF)
+            c.rect(x, y + 2, 12, 2, 0xFFFFFF)
+            c.rect(x + 1, y + 4, 10, 1, 0xE6F1FA)
+        } else {
+            c.rect(x, y, 9, 2, 0xFFFFFF)
+            c.rect(x + 2, y - 1, 4, 1, 0xFFFFFF)
+            c.rect(x + 1, y + 2, 7, 1, 0xE6F1FA)
+        }
+    }
 
-        c.rect(0, 18, 10, 64, wall)
-        for (y in 21..46 step 4) for (x in 2..8 step 3) {
-            c.rect(x, y, 2, 2, if ((x * 3 + y * 5) % 7 < 4) lit else off)
+    private fun drawFireworks(c: PixelCanvas, frame: Int) {
+        listOf(Triple(64, 6, 0), Triple(34, 5, 8)).forEach { (cx, cy, offset) ->
+            val t = (frame + offset) % FRAMES
+            val first = if (offset == 0) 0xFF6AC8 else 0x6AE0FF
+            val second = if (offset == 0) 0xFFE27A else 0xFFFFFF
+            if (t < 4) {
+                c.rect(cx, cy + 12 - t * 3, 1, 2, argb(220, 0xFFE8A8))
+                return@forEach
+            }
+            val r = t - 4
+            val radius = minOf(r + 1, 7)
+            val alpha = if (r < 6) 255 else 255 - (r - 6) * 40
+            for (k in 0 until 12) {
+                val a = 2 * PI * k / 12
+                c.px(
+                    cx + (radius * cos(a)).roundToInt(),
+                    cy + (radius * 0.9 * sin(a)).roundToInt(),
+                    argb(alpha, if (k % 2 == 0) first else second),
+                )
+            }
+            if (r < 3) c.disk(cx, cy, 1, argb(alpha, 0xFFFFFF))
         }
-        c.rect(84, 12, 12, 70, mix(wall, 0x0A0A14, 0.2f))
-        for (y in 16..70 step 4) for (x in 85..90 step 3) {
-            c.rect(x, y, 2, 2, if ((x * 5 + y * 3) % 7 < 3) lit else off)
+    }
+
+    private val SKYLINE = listOf(
+        Triple(0, 10, 8), Triple(9, 7, 3), Triple(16, 6, 10), Triple(22, 9, 1), Triple(31, 6, 7),
+        Triple(37, 8, 12), Triple(45, 10, 4), Triple(55, 7, 9), Triple(62, 12, 13), Triple(74, 8, 12),
+        Triple(82, 7, 6), Triple(89, 7, 2),
+    )
+    private val NEON = intArrayOf(0xB06AFF, 0xFF6AD5, 0x6AE0FF, 0xC77DFF)
+
+    private fun drawSkyline(c: PixelCanvas, state: SceneState, dark: Boolean, frame: Int) {
+        val clearSky = state.weather != Weather.RAIN && state.weather != Weather.SNOW
+        val strength = when {
+            !dark -> 0f
+            clearSky && state.mood != Mood.LONELY -> 1f
+            else -> 0.55f
         }
+        if (dark && strength == 1f) {
+            c.disk(48, 30, 46, argb(26, 0x9A4AFF))
+            c.disk(48, 30, 30, argb(22, 0xC77DFF))
+        }
+        val snow = state.weather == Weather.SNOW
+        SKYLINE.forEachIndexed { i, (x, w, top) ->
+            val body = if (dark) mix(0x1A1430, 0x2A1E48, (i % 3) / 2f) else mix(0x8A90A8, 0xA0A6BC, (i % 3) / 2f)
+            c.rect(x, top, w, STREET_Y - top, body)
+            for (wy in top + 2 until STREET_Y step 3) for (wx in x + 1 until x + w - 1 step 2) {
+                val h = (wx * 7 + wy * 13 + i * 5) % 11
+                if (dark) {
+                    val on = h < 4 || (h == 4 && (frame / 4 + wx + wy) % 3 == 0)
+                    if (on) c.px(wx, wy, mix(NEON[(i + h) % 4], body, 1 - strength * 0.85f))
+                } else if (h < 3) {
+                    c.px(wx, wy, 0xC8D4E4)
+                }
+            }
+            if (dark && i % 2 == 0) {
+                c.rect(x, top, w, 1, mix(NEON[i % 4], body, 1 - strength))
+                if (top > 0) c.rect(x, top - 1, w, 1, argb((70 * strength).toInt(), NEON[i % 4]))
+            }
+            if (dark && i % 3 == 1) {
+                val sx = x + w - 2
+                for (y in top + 2..minOf(top + 16, STREET_Y - 1)) {
+                    val bright = (y + frame) % 6 == 0
+                    c.px(sx, y, mix(if (bright) 0xFFFFFF else NEON[(i + 1) % 4], body, 1 - strength))
+                }
+            }
+            if (snow) c.rect(x, top, w, 1, if (dark) 0xC8D0F0 else 0xF4F8FF)
+        }
+        c.rect(50, 0, 1, 4, 0x3A3448)
+        if (dark && (frame / 4) % 2 == 0) c.px(50, 0, 0xFF3A3A)
+    }
+
+    private fun drawSideProps(c: PixelCanvas, frame: Int) {
         c.rect(91, 20, 4, 22, 0x14101C)
         for (i in 0 until 5) {
             val on = (i + frame / 3) % 5 != 0
             c.rect(92, 22 + i * 4, 2, 3, if (on) (if (i % 2 == 0) 0x5AD0FF else 0xFF6AC8) else 0x2A3040)
         }
-
         c.rect(86, 0, 3, 82, 0x5A5258)
         c.rect(87, 0, 1, 82, 0x6E666C)
-        c.rect(82, 6, 11, 1, 0x4A4248)
-        c.rect(84, 9, 5, 5, 0x7A7E86)
-        c.rect(84, 9, 5, 1, 0x9A9EA6)
+        c.rect(82, 4, 11, 1, 0x4A4248)
+        c.rect(84, 7, 5, 5, 0x7A7E86)
+        c.rect(84, 7, 5, 1, 0x9A9EA6)
     }
 
-    private fun drawFacade(c: PixelCanvas, dark: Boolean) {
-        c.rect(9, 5, 78, 1, 0x2A2230)
-        c.rect(10, 6, 76, 25, 0x4A3B48)
-        for (y in 9..29 step 4) c.rect(10, y, 76, 1, 0x423441)
+    private fun drawFacade(c: PixelCanvas, dark: Boolean, ground: Ground) {
+        c.rect(9, 15, 78, 1, 0x2A2230)
+        c.rect(10, 16, 76, 15, 0x4A3B48)
+        for (y in 19..29 step 4) c.rect(10, y, 76, 1, 0x423441)
 
-        c.rect(15, 8, 14, 10, 0x2A2230)
-        c.rect(16, 9, 12, 8, if (dark) 0xFFD98A else 0xB8C0CC)
-        c.rect(16, 9, 5, 8, if (dark) 0xE8A86A else 0x9AA2B2)
-        c.rect(16, 12, 12, 1, 0x2A2230)
+        c.rect(14, 18, 13, 10, 0x2A2230)
+        c.rect(15, 19, 11, 8, if (dark) 0xFFD98A else 0xB8C0CC)
+        c.rect(15, 19, 4, 8, if (dark) 0xE8A86A else 0x9AA2B2)
+        c.rect(15, 22, 11, 1, 0x2A2230)
 
-        c.rect(32, 10, 8, 6, 0xB8BCC4)
-        for (x in 33..38 step 2) c.rect(x, 11, 1, 4, 0x8A8E96)
+        c.rect(70, 20, 9, 6, 0xB8BCC4)
+        for (x in 71..77 step 2) c.rect(x, 21, 1, 4, 0x8A8E96)
 
-        c.rect(65, 8, 14, 10, 0x2A2230)
-        c.rect(66, 9, 12, 8, 0x3A4660)
-        for (y in 10..16 step 2) c.rect(66, y, 12, 1, 0x4A5878)
-
-        c.rect(0, 78, SIZE, 4, if (dark) 0x34343F else 0x5A5A64)
-        c.rect(0, 78, SIZE, 1, if (dark) 0x44444F else 0x6A6A74)
+        val walk = when (ground) {
+            Ground.SNOW -> if (dark) 0x8A92B4 else 0xE4EAF2
+            else -> if (dark) 0x34343F else 0x5A5A64
+        }
+        c.rect(0, 78, SIZE, 4, walk)
+        c.rect(0, 78, SIZE, 1, mix(walk, 0xFFFFFF, 0.1f))
         c.rect(10, 34, 4, 48, 0x3A2418)
         c.rect(11, 34, 1, 48, 0x553826)
         c.rect(82, 34, 4, 48, 0x3A2418)
@@ -140,8 +308,8 @@ object SceneRenderer {
     private fun drawWires(c: PixelCanvas) {
         for (x in 0..86) {
             val sag = x * (86 - x) / 900
-            c.px(x, 6 + (86 - x) * 8 / 86 + sag, 0x141420)
-            c.px(x, 9 + (86 - x) * 6 / 86 + sag, 0x141420)
+            c.px(x, 4 + (86 - x) * 6 / 86 + sag, 0x141420)
+            c.px(x, 7 + (86 - x) * 4 / 86 + sag, 0x141420)
         }
     }
 
@@ -270,6 +438,18 @@ object SceneRenderer {
         }
     }
 
+    private fun drawFurin(c: PixelCanvas, frame: Int) {
+        val dx = sway(frame, 1.0, 2)
+        c.rect(23, 34, 1, 2, 0x8A8E96)
+        c.rect(21, 36, 5, 1, argb(220, 0xDFF4FF))
+        c.rect(20, 37, 7, 3, argb(200, 0xBFE8FF))
+        c.px(22, 38, 0xFF6A8C); c.px(24, 38, 0xFF6A8C)
+        c.px(23 + dx / 2, 40, 0xD9483B)
+        c.rect(23 + dx, 41, 1, 1, 0x8A8E96)
+        c.rect(22 + dx, 42, 3, 4, 0xF4F1EA)
+        c.rect(22 + dx, 42, 3, 1, 0xFF8FB0)
+    }
+
     private fun drawLanterns(c: PixelCanvas, lit: Boolean, frame: Int) {
         listOf(13, 82).forEachIndexed { k, base ->
             val cx = base + sway(frame, 1.0, offset = k * 0.5)
@@ -302,28 +482,27 @@ object SceneRenderer {
         }
     }
 
-    private val CUSTOMER = listOf(
-        "..hhhhh..",
-        ".hhhhhhh.",
-        ".hhhhhhh.",
-        ".hhhhhhh.",
-        "..hhhhh..",
-        "...sss...",
-        ".JJJJJJJ.",
-        "JJJJJJJJJ",
-        "JJJJJJJJJ",
-        "JJJjJjJJJ",
-        "JJJJJJJJJ",
-        ".JJJJJJJ.",
-    )
+    private val CUSTOMER_HEAD = listOf("..hhhhh..", ".hhhhhhh.", ".hhhhhhh.", ".hhhhhhh.", "..hhhhh..", "...sss...")
+    private val CUSTOMER_BODY = listOf(".JJJJJJJ.", "JJJJJJJJJ", "JJJJJJJJJ", "JJJjJjJJJ", "JJJJJJJJJ", ".JJJJJJJ.")
 
-    private fun drawCustomer(c: PixelCanvas, frame: Int) {
+    private fun drawCustomer(c: PixelCanvas, weather: Weather, wet: Boolean, frame: Int) {
+        val coat = when (weather) {
+            Weather.RAIN -> 0xF2C94C
+            Weather.SNOW -> 0xD9483B
+            Weather.AUTUMN -> 0x9A6A44
+            Weather.SUMMER -> 0x8FD0F0
+            Weather.CLEAR -> 0x8A5AC8
+        }
         val slurp = if (frame in 4..7 || frame in 12..15) 1 else 0
-        c.sprite(CUSTOMER.take(6), 18, 60 + slurp, mapOf('h' to 0x3A2A22, 's' to SKIN))
-        c.sprite(CUSTOMER.drop(6), 18, 66, mapOf('J' to 0xF2C94C, 'j' to 0xD9A82A))
-        for (i in 0..9) c.px(31 + i / 4, 80 - i, 0x8A8E96)
-        c.rect(32, 66, 3, 7, argb(140, 0xE6F0FA))
-        c.px(33, 65, argb(160, 0xE6F0FA))
+        c.sprite(CUSTOMER_HEAD, 18, 60 + slurp, mapOf('h' to 0x3A2A22, 's' to SKIN))
+        if (weather == Weather.SNOW) c.rect(19, 60 + slurp, 7, 2, 0xF4F1EA)
+        c.sprite(CUSTOMER_BODY, 18, 66, mapOf('J' to coat, 'j' to mix(coat, 0x000000, 0.2f)))
+        if (weather == Weather.SNOW) c.rect(19, 66, 7, 1, 0xF4F1EA)
+        if (wet) {
+            for (i in 0..9) c.px(31 + i / 4, 80 - i, 0x8A8E96)
+            c.rect(32, 66, 3, 7, argb(140, 0xE6F0FA))
+            c.px(33, 65, argb(160, 0xE6F0FA))
+        }
     }
 
     private val CAT = listOf(
@@ -380,15 +559,48 @@ object SceneRenderer {
         c.rect(2, 76, 6, 3, 0x2A2A35)
     }
 
-    private fun drawStreet(c: PixelCanvas, mood: Mood, dark: Boolean, frame: Int) {
-        val asphalt = if (dark) 0x24242E else 0x45454F
+    private val LEAF_COLORS = intArrayOf(0xE85A2A, 0xF29A2E, 0xD9483B, 0xF2C94C)
+
+    private fun drawStreet(c: PixelCanvas, open: Boolean, dark: Boolean, ground: Ground, weather: Weather, frame: Int) {
+        val asphalt = when (ground) {
+            Ground.SNOW -> if (dark) 0x5A6286 else 0xD8E0EC
+            else -> if (dark) 0x24242E else 0x45454F
+        }
         c.rect(0, STREET_Y, SIZE, SIZE - STREET_Y, asphalt)
-        c.rect(0, STREET_Y, SIZE, 1, 0x5A5A66)
+        c.rect(0, STREET_Y, SIZE, 1, mix(asphalt, 0xFFFFFF, 0.15f))
         for (y in STREET_Y + 1 until SIZE) for (x in 0 until SIZE) {
-            if ((x * 7 + y * 11) % 17 == 0) c.px(x, y, mix(asphalt, 0x000000, 0.25f))
+            if ((x * 7 + y * 11) % 17 == 0) c.px(x, y, mix(asphalt, 0x000000, if (ground == Ground.SNOW) 0.08f else 0.25f))
         }
 
-        val open = mood != Mood.SLEEPING
+        when (ground) {
+            Ground.WET -> drawWetStreet(c, open, frame)
+            Ground.SNOW -> {
+                val track = mix(asphalt, 0x000000, 0.18f)
+                c.rect(0, 88, SIZE, 1, track); c.rect(0, 92, SIZE, 1, track)
+                for (x in 6 until SIZE step 9) {
+                    c.px(x, 85 + (x / 9) % 2, track); c.px(x + 2, 86 - (x / 9) % 2, track)
+                }
+                if (open) for (y in 83..86) c.rect(14, y, 68, 1, argb(40 - (y - 83) * 8, 0xFFC870))
+            }
+            Ground.DRY -> {
+                val line = if (dark) 0x6A6A74 else 0xC8C8CC
+                for (x in 2 until SIZE step 12) c.rect(x, 89, 6, 1, line)
+                if (open) for (y in 83..85) c.rect(14, y, 68, 1, argb(30 - (y - 83) * 8, 0xFFC870))
+            }
+        }
+
+        if (weather == Weather.AUTUMN) {
+            listOf(18 to 85, 57 to 93, 80 to 87, 36 to 80, 70 to 80).forEachIndexed { p, (cx, cy) ->
+                for (k in 0 until 9) {
+                    val x = cx + (k * 5 + p) % 7 - 3
+                    val y = cy + (k * 3) % 3
+                    c.px(x, y, LEAF_COLORS[(k + p) % 4])
+                }
+            }
+        }
+    }
+
+    private fun drawWetStreet(c: PixelCanvas, open: Boolean, frame: Int) {
         for (y in 83..95) for (x in 0 until SIZE) {
             if (!shimmer(x, y, frame)) continue
             if (open && y <= 87 && x in 14..81) c.px(x, y, argb(45, 0xFFC870))
@@ -397,7 +609,7 @@ object SceneRenderer {
             if (x in 1..9 && y in 83..91) c.px(x, y, argb(70, 0xBFE4FF))
         }
 
-        c.disk(64, 90, 3) { _, _ -> mix(asphalt, 0x3A3A55, 0.6f) }
+        c.disk(64, 90, 3) { _, _ -> 0x2E2E48 }
         for (k in 0..1) {
             val r = (frame + k * 8) % FRAMES / 2
             val alpha = 170 - r * 20
@@ -418,13 +630,34 @@ object SceneRenderer {
         }
     }
 
-    private fun drawRain(c: PixelCanvas, mood: Mood, frame: Int) {
-        val count = when (mood) {
-            Mood.LONELY -> 85
-            Mood.HAPPY -> 40
-            else -> 55
+    private fun drawSnowCaps(c: PixelCanvas, dark: Boolean) {
+        val snow = if (dark) 0xC8D0F0 else 0xF4F8FF
+        c.rect(9, 14, 78, 1, snow)
+        c.rect(30, 17, 37, 1, snow)
+        c.rect(11, 30, 74, 1, snow)
+        for (x in 13..83 step 7) c.px(x, 29, snow)
+        c.rect(0, 49, 11, 1, snow)
+        c.rect(82, 3, 11, 1, snow)
+        c.rect(84, 6, 5, 1, snow)
+        c.rect(14, 17, 13, 1, snow)
+        c.rect(70, 19, 9, 1, snow)
+        listOf(13, 82).forEach { c.rect(it - 2, 35, 5, 1, snow) }
+        c.rect(43, 71, 7, 1, snow)
+    }
+
+    private fun drawPrecipitation(c: PixelCanvas, precip: Precip, frame: Int) {
+        when (precip) {
+            Precip.NONE -> Unit
+            Precip.DRIZZLE -> drawRain(c, 25, 0xC8D6EA, frame)
+            Precip.RAIN -> drawRain(c, 50, 0xC8D6EA, frame)
+            Precip.HEAVY_RAIN -> drawRain(c, 85, 0xB8C8E0, frame)
+            Precip.SNOW -> drawSnow(c, 16, frame)
+            Precip.HEAVY_SNOW -> drawSnow(c, 28, frame)
+            Precip.LEAVES -> drawLeaves(c, frame)
         }
-        val color = if (mood == Mood.LONELY) 0xB8C8E0 else 0xC8D6EA
+    }
+
+    private fun drawRain(c: PixelCanvas, count: Int, color: Int, frame: Int) {
         for (i in 0 until count) {
             val x0 = (i * 37 + i * i * 3) % SIZE
             val y0 = (i * 53) % SIZE
@@ -433,10 +666,28 @@ object SceneRenderer {
             for (p in 0..3) {
                 val px = x - p / 2
                 val py = y + p
-                if (py >= SIZE) continue
-                if (px in 11..84 && py in 31..65) continue
+                if (py >= SIZE || underAwning(px, py)) continue
                 c.px(px, py, argb(if (p == 0) 70 else 120, color))
             }
+        }
+    }
+
+    private fun drawSnow(c: PixelCanvas, seeds: Int, frame: Int) {
+        particles(seeds, 3, frame) { id, x0, y ->
+            val x = Math.floorMod(x0 + sway(frame, 2.0, offset = id * 0.17), SIZE)
+            if (underAwning(x, y)) return@particles
+            if (id % 4 == 0) c.rect(x, y, 2, 2, argb(235, 0xFFFFFF)) else c.px(x, y, argb(220, 0xFFFFFF))
+        }
+    }
+
+    private fun drawLeaves(c: PixelCanvas, frame: Int) {
+        particles(9, 2, frame) { id, x0, y ->
+            val x = Math.floorMod(x0 + sway(frame, 4.0, offset = id * 0.21), SIZE)
+            if (underAwning(x, y)) return@particles
+            val col = LEAF_COLORS[id % 4]
+            c.px(x, y, col)
+            if ((frame / 2 + id) % 2 == 0) c.px(x + 1, y, col) else c.px(x + 1, y + 1, col)
+            c.px(x, y + 1, mix(col, 0x000000, 0.2f))
         }
     }
 
