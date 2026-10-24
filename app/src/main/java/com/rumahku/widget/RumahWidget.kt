@@ -52,7 +52,7 @@ object WidgetUpdater {
         val mood = MoodEngine.decide(stats, hour)
         val phase = DayPhase.of(hour)
         val weather = Weather.current()
-        val frames = SceneRenderer.renderFrames(SceneState(mood, phase, weather))
+        val frames = SceneRenderer.renderFrames(SceneState(mood, phase, weather, GuestStore.load(ctx)))
         val uris = FrameStore.save(ctx, frames)
         frames.forEach { it.recycle() }
 

@@ -28,6 +28,14 @@ The weather shuffles every 3 hours:
 
 When the owner is lonely the sky turns grey and it starts to drizzle.
 
+## Guests
+
+Invite up to 3 friends into the shop. Each guest has a name, hair style, hair color, outfit color and something to do (eating ramen, sipping tea or playing on their phone). They sit on the red stools in the widget with a pixel name plate under their seat. Guests stay home when the shop is lonely or closed.
+
+## App
+
+The companion app is fully pixel styled: starry backdrop, neon pixel font headers, chunky 3D pixel buttons, a mood panel with segmented screen time bars, guest cards with pixel portraits and a guest editor with a live preview of the shop.
+
 ## Tech
 
 - Kotlin, no third-party dependencies

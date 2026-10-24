@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#1E1828"
+    android:background="#15112A"
     android:fillViewport="true">
 
     <LinearLayout
@@ -10,46 +11,42 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:paddingStart="18dp"
+        android:paddingTop="36dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="32dp">
 
-        <TextView
+        <ImageView
+            android:id="@+id/header_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <ImageView
+            android:id="@+id/header_sub"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:fontFamily="monospace"
-            android:text="Rumahku"
-            android:textColor="#FFF3E0"
-            android:textSize="28sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="monospace"
-            android:gravity="center"
-            android:text="si kecil yang tinggal di HP kamu"
-            android:textColor="#A8957E"
-            android:textSize="12sp" />
+            android:layout_marginTop="10dp" />
 
         <FrameLayout
             android:id="@+id/preview_frame"
-            android:layout_width="280dp"
-            android:layout_height="280dp"
-            android:layout_marginTop="20dp"
-            android:background="@drawable/widget_bg">
+            android:layout_width="312dp"
+            android:layout_height="312dp"
+            android:layout_marginTop="22dp"
+            android:background="@drawable/pixel_frame"
+            android:padding="6dp">
 
             <ImageView
                 android:id="@+id/preview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop" />
+                android:scaleType="fitXY" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="top|start"
-                android:layout_marginStart="12dp"
-                android:layout_marginTop="12dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -75,56 +72,84 @@
             </LinearLayout>
         </FrameLayout>
 
-        <TextView
-            android:id="@+id/mood_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:fontFamily="monospace"
-            android:textColor="#FFF3E0"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/mood_line"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="monospace"
-            android:gravity="center"
-            android:textColor="#E8D6BF"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/stats"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:fontFamily="monospace"
-            android:gravity="center"
-            android:textColor="#A8957E"
-            android:textSize="12sp" />
-
-        <Button
-            android:id="@+id/btn_permission"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="18dp"
-            android:text="Kasih izin baca screen time" />
+            android:background="@drawable/pixel_panel"
+            android:orientation="vertical"
+            android:padding="18dp">
 
-        <Button
-            android:id="@+id/btn_pin"
+            <LinearLayout
+                android:id="@+id/header_mood"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/mood_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:fontFamily="monospace"
+                android:textColor="#FFF3E0"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/mood_line"
+                style="@style/PixelBody"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp" />
+
+            <LinearLayout
+                android:id="@+id/stats_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/header_guests"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp" />
+
+        <TextView
+            style="@style/PixelBody"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Pasang widget ke Home Screen" />
+            android:text="Ajak temanmu mampir! Mereka duduk di kursi merah dan muncul di widget."
+            android:textColor="#A898C8"
+            android:textSize="12sp" />
 
-        <TextView
+        <LinearLayout
+            android:id="@+id/guest_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="22dp"
-            android:fontFamily="monospace"
-            android:text="Intip mood lain (cuma preview):"
-            android:textColor="#A8957E"
+            android:orientation="vertical" />
+
+        <Button
+            android:id="@+id/btn_add_guest"
+            style="@style/PixelButton"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/btn_pink" />
+
+        <LinearLayout
+            android:id="@+id/header_preview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="28dp" />
+
+        <TextView
+            style="@style/PixelBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="Coba lihat semua mood, waktu, dan cuaca."
+            android:textColor="#A898C8"
             android:textSize="12sp" />
 
         <HorizontalScrollView
@@ -163,13 +188,34 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
-        <TextView
+        <LinearLayout
+            android:id="@+id/header_settings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:fontFamily="monospace"
-            android:text="Widget update sendiri tiap ~15 menit. Ketuk widget-nya buat refresh langsung."
-            android:textColor="#7D6E5E"
+            android:layout_marginTop="28dp" />
+
+        <Button
+            android:id="@+id/btn_permission"
+            style="@style/PixelButton"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/btn_cyan"
+            android:text="Kasih izin baca screen time" />
+
+        <Button
+            android:id="@+id/btn_pin"
+            style="@style/PixelButton"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/btn_pink"
+            android:text="Pasang widget ke Home Screen" />
+
+        <TextView
+            style="@style/PixelBody"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:gravity="center"
+            android:text="Widget update tiap ~15 menit. Ketuk widget buat refresh."
+            android:textColor="#5A4A84"
             android:textSize="11sp" />
     </LinearLayout>
 </ScrollView>
