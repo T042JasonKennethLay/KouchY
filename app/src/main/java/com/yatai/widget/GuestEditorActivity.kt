@@ -1,4 +1,4 @@
-package com.rumahku.widget
+package com.yatai.widget
 
 import android.app.Activity
 import android.graphics.drawable.AnimationDrawable

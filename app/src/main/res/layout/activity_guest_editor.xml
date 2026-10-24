@@ -57,7 +57,7 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
-                <com.rumahku.widget.PixelTextView
+                <com.yatai.widget.PixelTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     app:pixelColor="#6AE0FF"
@@ -82,7 +82,7 @@
                         android:textColor="#00000000"
                         android:textIsSelectable="false" />
 
-                    <com.rumahku.widget.PixelTextView
+                    <com.yatai.widget.PixelTextView
                         android:id="@+id/name_display"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -91,7 +91,7 @@
                         app:pixelSize="3" />
                 </FrameLayout>
 
-                <com.rumahku.widget.PixelTextView
+                <com.yatai.widget.PixelTextView
                     android:id="@+id/tag_hint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -101,7 +101,7 @@
             </LinearLayout>
         </LinearLayout>
 
-        <com.rumahku.widget.PixelTextView
+        <com.yatai.widget.PixelTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
@@ -122,7 +122,7 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
-        <com.rumahku.widget.PixelTextView
+        <com.yatai.widget.PixelTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
@@ -143,7 +143,7 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
-        <com.rumahku.widget.PixelTextView
+        <com.yatai.widget.PixelTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
@@ -164,7 +164,7 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
-        <com.rumahku.widget.PixelTextView
+        <com.yatai.widget.PixelTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="22dp"
@@ -185,7 +185,7 @@
                 android:orientation="horizontal" />
         </HorizontalScrollView>
 
-        <com.rumahku.widget.PixelTextView
+        <com.yatai.widget.PixelTextView
             android:id="@+id/error"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -195,14 +195,14 @@
             app:pixelSize="2.5"
             app:pixelText="Kasih nama dulu ya" />
 
-        <com.rumahku.widget.PixelButton
+        <com.yatai.widget.PixelButton
             android:id="@+id/btn_save"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
             android:background="@drawable/btn_pink" />
 
-        <com.rumahku.widget.PixelButton
+        <com.yatai.widget.PixelButton
             android:id="@+id/btn_delete"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

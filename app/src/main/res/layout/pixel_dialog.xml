@@ -7,14 +7,14 @@
     android:orientation="vertical"
     android:padding="22dp">
 
-    <com.rumahku.widget.PixelTextView
+    <com.yatai.widget.PixelTextView
         android:id="@+id/dialog_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:pixelColor="#FF6AD5"
         app:pixelSize="3.5" />
 
-    <com.rumahku.widget.PixelTextView
+    <com.yatai.widget.PixelTextView
         android:id="@+id/dialog_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,14 +22,14 @@
         app:pixelColor="#FFF3E0"
         app:pixelSize="2.5" />
 
-    <com.rumahku.widget.PixelButton
+    <com.yatai.widget.PixelButton
         android:id="@+id/dialog_confirm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="22dp"
         android:background="@drawable/btn_pink" />
 
-    <com.rumahku.widget.PixelButton
+    <com.yatai.widget.PixelButton
         android:id="@+id/dialog_cancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -1,4 +1,4 @@
-package com.rumahku.widget
+package com.yatai.widget
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
@@ -29,7 +29,7 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
 
         findViewById<View>(R.id.root).background = PixelUi.backdrop(this)
-        PixelUi.setText(findViewById(R.id.header_title), "RUMAHKU", PixelUi.PINK, 7f, 0x5A1A6E)
+        PixelUi.setText(findViewById(R.id.header_title), "YATAI", PixelUi.PINK, 7f, 0x5A1A6E)
         PixelUi.fillHeader(findViewById(R.id.header_mood), PixelUi.ICON_HEART, "MOOD HARI INI", PixelUi.YELLOW)
         PixelUi.fillHeader(findViewById(R.id.header_guests), PixelUi.ICON_PERSON, "TAMU KEDAI", PixelUi.PINK)
         PixelUi.fillHeader(findViewById(R.id.header_preview), PixelUi.ICON_EYE, "INTIP SUASANA", PixelUi.CYAN)
@@ -252,12 +252,12 @@ class MainActivity : Activity() {
     private fun pinWidget() {
         val manager = AppWidgetManager.getInstance(this)
         if (manager.isRequestPinAppWidgetSupported) {
-            manager.requestPinAppWidget(ComponentName(this, RumahWidget::class.java), null, null)
+            manager.requestPinAppWidget(ComponentName(this, YataiWidget::class.java), null, null)
         } else {
             PixelDialog.show(
                 this,
                 title = "Pasang manual",
-                message = "Tahan lama home screen, pilih widget, lalu cari Rumahku.",
+                message = "Tahan lama home screen, pilih widget, lalu cari Yatai.",
                 confirm = "Oke",
             )
         }

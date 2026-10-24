@@ -1,4 +1,4 @@
-package com.rumahku.widget
+package com.yatai.widget
 
 import android.content.ContentProvider
 import android.content.ContentValues
@@ -11,7 +11,7 @@ import java.io.File
 import java.io.FileNotFoundException
 
 object FrameStore {
-    const val AUTHORITY = "com.rumahku.widget.frames"
+    const val AUTHORITY = "com.yatai.widget.frames"
     private const val SCALE = 4
     private val NAME = Regex("""frame_\d+_\d+\.png""")
 

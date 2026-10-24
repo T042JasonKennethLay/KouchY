@@ -3,13 +3,13 @@ plugins {
 }
 
 android {
-    namespace = "com.rumahku.widget"
+    namespace = "com.yatai.widget"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.rumahku.widget"
+        applicationId = "com.yatai.widget"
         minSdk = 29
         targetSdk = 37
         versionCode = 1

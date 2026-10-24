@@ -1,4 +1,4 @@
-package com.rumahku.widget
+package com.yatai.widget
 
 import android.graphics.Bitmap
 import android.graphics.Canvas

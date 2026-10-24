@@ -1,4 +1,4 @@
-# KouchY
+# Yatai
 
 A tiny late-night Tokyo ramen shop that lives on your Android home screen. The shop owner reacts to how you use your phone today.
 
@@ -55,6 +55,6 @@ Requirements: Android Studio with SDK 37, min Android 10 (API 29).
 
 ## Setup on device
 
-1. Install the app and open **Rumahku**.
+1. Install the app and open **Yatai**.
 2. Tap **Kasih izin baca screen time** and enable usage access.
 3. Tap **Pasang widget ke Home Screen**.
