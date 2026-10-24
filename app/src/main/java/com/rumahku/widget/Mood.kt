@@ -6,24 +6,24 @@ enum class Mood(
     val line: String,
     val lampOn: Boolean,
 ) {
-    HAPPY("Senang", "Senang! ☕", "Hari ini pas banget, makasih udah mampir", true),
-    LONELY("Kesepian", "Kesepian…", "Kamu ke mana aja? Aku kangen…", false),
+    HAPPY("Senang", "Senang! 🍜", "Kedai rame, makasih udah mampir", true),
+    LONELY("Kesepian", "Kesepian…", "Kedainya sepi, kamu ke mana aja?", false),
     TIRED("Capek", "Pusing… 😵", "Kebanyakan main HP nih, istirahat yuk", true),
-    SLEEPY("Ngantuk", "Ngantuk… 🥱", "Udah malem, tidur yuk", true),
-    SLEEPING("Tidur", "Zzz… 😴", "Hoaam… kamu udah bangun?", false),
+    SLEEPY("Ngantuk", "Ngantuk… 🥱", "Udah larut, tidur yuk", true),
+    SLEEPING("Tidur", "Zzz… 😴", "Kedai tutup dulu, lagi tidur", false),
     NO_PERMISSION("Belum diizinkan", "Halo! 👋", "Ketuk aku buat kasih izin ya", true);
 
     fun bubble(phase: DayPhase): String = when (this) {
         HAPPY -> when (phase) {
             DayPhase.MORNING -> "ohayō~ ☀️"
-            DayPhase.DAY -> "yay~ ☕"
-            DayPhase.EVENING -> "otsukare~ 🍡"
-            DayPhase.NIGHT -> "konbanwa~ 🌙"
+            DayPhase.DAY -> "itadakimasu~ 🍜"
+            DayPhase.EVENING -> "irasshai~! 🏮"
+            DayPhase.NIGHT -> "irasshai~! 🍜"
         }
-        LONELY -> "kangen… 🥺"
+        LONELY -> "sepi ya… 🌧️"
         TIRED -> "pusiiing… 😵"
         SLEEPY -> "hoaam… 🥱"
-        SLEEPING -> "zzz… 💤"
+        SLEEPING -> "tutup dulu… 💤"
         NO_PERMISSION -> "tap aku dong! 👋"
     }
 }
