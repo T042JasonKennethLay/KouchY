@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
-        <com.rumahku.widget.PixelTextView
+        <com.yatai.widget.PixelTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -57,7 +57,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-            <com.rumahku.widget.PixelTextView
+            <com.yatai.widget.PixelTextView
                 android:id="@+id/mood_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
                 app:pixelColor="#FFF3E0"
                 app:pixelSize="5" />
 
-            <com.rumahku.widget.PixelTextView
+            <com.yatai.widget.PixelTextView
                 android:id="@+id/mood_line"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -87,7 +87,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp" />
 
-        <com.rumahku.widget.PixelTextView
+        <com.yatai.widget.PixelTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -101,7 +101,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <com.rumahku.widget.PixelButton
+        <com.yatai.widget.PixelButton
             android:id="@+id/btn_add_guest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp" />
 
-        <com.rumahku.widget.PixelTextView
+        <com.yatai.widget.PixelTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
@@ -165,7 +165,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="28dp" />
 
-        <com.rumahku.widget.PixelButton
+        <com.yatai.widget.PixelButton
             android:id="@+id/btn_permission"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -173,7 +173,7 @@
             android:background="@drawable/btn_cyan"
             app:pixelText="Kasih izin baca screen time" />
 
-        <com.rumahku.widget.PixelButton
+        <com.yatai.widget.PixelButton
             android:id="@+id/btn_pin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -181,7 +181,7 @@
             android:background="@drawable/btn_pink"
             app:pixelText="Pasang widget ke home screen" />
 
-        <com.rumahku.widget.PixelTextView
+        <com.yatai.widget.PixelTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"

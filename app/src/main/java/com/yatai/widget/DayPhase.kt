@@ -1,4 +1,4 @@
-package com.rumahku.widget
+package com.yatai.widget
 
 enum class DayPhase(val label: String) {
     MORNING("Pagi"), DAY("Siang"), EVENING("Sore"), NIGHT("Malam");

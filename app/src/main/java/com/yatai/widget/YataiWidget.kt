@@ -1,4 +1,4 @@
-package com.rumahku.widget
+package com.yatai.widget
 
 import android.app.AlarmManager
 import android.app.PendingIntent
@@ -11,7 +11,7 @@ import android.net.Uri
 import android.os.SystemClock
 import android.widget.RemoteViews
 
-class RumahWidget : AppWidgetProvider() {
+class YataiWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, manager: AppWidgetManager, ids: IntArray) {
         WidgetUpdater.updateAll(context)
         UpdateScheduler.schedule(context)
@@ -27,10 +27,10 @@ class RumahWidget : AppWidgetProvider() {
     }
 
     companion object {
-        const val ACTION_REFRESH = "com.rumahku.widget.REFRESH"
+        const val ACTION_REFRESH = "com.yatai.widget.REFRESH"
 
         fun refreshIntent(ctx: Context) =
-            Intent(ctx, RumahWidget::class.java).setAction(ACTION_REFRESH)
+            Intent(ctx, YataiWidget::class.java).setAction(ACTION_REFRESH)
     }
 }
 
@@ -44,7 +44,7 @@ object WidgetUpdater {
 
     fun updateAll(ctx: Context) {
         val manager = AppWidgetManager.getInstance(ctx)
-        val ids = manager.getAppWidgetIds(ComponentName(ctx, RumahWidget::class.java))
+        val ids = manager.getAppWidgetIds(ComponentName(ctx, YataiWidget::class.java))
         if (ids.isEmpty()) return
 
         val stats = PhoneUsage.read(ctx)
@@ -60,12 +60,12 @@ object WidgetUpdater {
     }
 
     private fun buildViews(ctx: Context, frames: List<Uri>, stats: PhoneStats): RemoteViews {
-        val views = RemoteViews(ctx.packageName, R.layout.widget_rumah)
+        val views = RemoteViews(ctx.packageName, R.layout.widget_yatai)
         frames.forEachIndexed { i, uri -> views.setImageViewUri(FRAME_IDS[i], uri) }
 
         val click = if (stats.hasPermission) {
             PendingIntent.getBroadcast(
-                ctx, 1, RumahWidget.refreshIntent(ctx),
+                ctx, 1, YataiWidget.refreshIntent(ctx),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
         } else {
@@ -93,7 +93,7 @@ object UpdateScheduler {
     fun cancel(ctx: Context) = ctx.getSystemService(AlarmManager::class.java).cancel(pending(ctx))
 
     private fun pending(ctx: Context) = PendingIntent.getBroadcast(
-        ctx, 0, RumahWidget.refreshIntent(ctx),
+        ctx, 0, YataiWidget.refreshIntent(ctx),
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
     )
 }
